@@ -1,0 +1,44 @@
+---
+# code: language=ansible
+# [Doc] List of all modules used
+# Docker_network https://docs.ansible.com/ansible/2.9/modules/docker_network_module.html
+
+- name: Install pip package
+  ansible.builtin.apt:
+    name:
+      - python3-pip
+      - python3-docker
+    update_cache: true
+  become: true
+
+- name: Create Private network
+  community.docker.docker_network:
+    name: private_docker_network
+    state: present
+    driver: bridge
+    driver_options:
+      com.docker.network.bridge.enable_ip_masquerade: true
+      com.docker.network.bridge.enable_icc: true
+      com.docker.network.bridge.host_binding_ipv4: "{{ melissa_host_ip }}"
+      com.docker.network.bridge.name: private_network
+      com.docker.network.driver.mtu: 1500
+    ipam_config:
+      - subnet: 172.16.20.0/24
+        gateway: 172.16.20.1
+  become: true
+
+- name: Create Public network
+  community.docker.docker_network:
+    name: public_docker_network
+    state: present
+    driver: bridge
+    driver_options:
+      com.docker.network.bridge.enable_ip_masquerade: true
+      com.docker.network.bridge.enable_icc: true
+      com.docker.network.bridge.host_binding_ipv4: "{{ melissa_host_ip }}"
+      com.docker.network.bridge.name: public_network
+      com.docker.network.driver.mtu: 1500
+    ipam_config:
+      - subnet: 172.16.100.0/24
+        gateway: 172.16.100.1
+  become: true
