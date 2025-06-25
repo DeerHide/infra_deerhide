@@ -1,0 +1,33 @@
+---
+# code: language=ansible
+# Path: ansible/roles/deerhide_users/tasks/setup_users.yml
+
+- name: Create deerhide-operator group
+  ansible.builtin.group:
+    name: deerhide-operator
+    state: present
+  become: true
+
+- name: Create deerhide-operator user
+  ansible.builtin.user:
+    name: deerhide-operator
+    group: deerhide-operator
+    state: present
+    shell: /bin/bash
+    home: /home/deerhide-operator
+    createhome: true
+  become: true
+
+- name: Create deerhide-operator dedicated user
+  ansible.builtin.user:
+    name: "deerhide-operator-{{ item }}"
+    group: deerhide-operator
+    state: present
+    shell: /bin/bash
+    home: /home/deerhide-operator-{{ item }}
+    createhome: true
+  become: true
+  with_items:
+    - "tom4897"
+    - "miragecentury"
+    - "nakou"
