@@ -8,8 +8,7 @@
   roles:
     # - role: updates
     # - role: deerhide_users
-    - role: svc_docker
-    - role: svc_coredns
+    # - role: svc_docker
+    # - role: svc_coredns
+    - role: svc_kubernetes_helper
     # - role: svc_nut
-    # - role: svc_kubernetes
-    # - role: svc_nginx

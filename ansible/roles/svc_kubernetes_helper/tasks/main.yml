@@ -1,0 +1,5 @@
+---
+# code: language=ansible
+
+- name: Include setup_cilium_config_server
+  ansible.builtin.include_tasks: setup_cilium_config_server.yml
