@@ -1,0 +1,6 @@
+.venv
+
+# Env
+.env
+# Ansible Secrets
+.vault_pass.txt
