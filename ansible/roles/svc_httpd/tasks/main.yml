@@ -18,9 +18,8 @@
     group: deerhide-operator
     mode: "0644"
   loop:
-    - helm-cilium/cilium.yaml
-    - helm-cilium/cilium-prd-blue.yaml
-    - helm-cilium/cilium-prd-mgt.yaml
+    - cilium-prd-blue.yaml
+    - cilium-prd-mgt.yaml
   become: true
 
 - name: "Create Docker Volume"
