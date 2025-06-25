@@ -1,0 +1,7 @@
+---
+# code: language=ansible
+- name: Include tasks from setup_coredns.yml
+  ansible.builtin.include_tasks: setup_coredns.yml
+
+# - name: Include tasks from setup_etcd.yml
+#   ansible.builtin.include_tasks: setup_etcd.yml
