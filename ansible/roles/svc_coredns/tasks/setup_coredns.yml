@@ -44,16 +44,9 @@
     image: "{{ coredns_docker_image_name }}:{{ coredns_docker_image_version }}"
     state: started
     restart_policy: always
-    exposed_ports:
-      - 53
     ports:
-      - "53"
-
-      - "53/udp"
+      - "53/udp:53/udp"
     volumes:
       - "{{ coredns_data_dir }}:/data"
     recreate: true
-    networks:
-      - name: "{{ docker_network_private }}"
-        ipv4_address: "{{ coredns_ip }}"
   become: true
