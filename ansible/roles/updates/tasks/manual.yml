@@ -1,0 +1,43 @@
+---
+# code: language=ansible
+# [Doc] List of all module used
+# Apt "https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html"
+# Stats "https://docs.ansible.com/ansible/latest/collections/ansible/builtin/stat_module.html"
+# Reboot "https://docs.ansible.com/ansible/latest/collections/ansible/builtin/reboot_module.html"
+
+- name: Updating packages list # apt-get update
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600 # 1h
+  become: true
+
+- name: Updating all packages # apt-get upgrade
+  ansible.builtin.apt:
+    name: "*"
+    state: latest # noqa: package-latest
+  become: true
+
+- name: Upgrading the OS # apt-get dist-upgrade
+  ansible.builtin.apt:
+    upgrade: dist
+  become: true
+
+- name: Cleaning old packages # apt-get clean
+  ansible.builtin.apt:
+    autoclean: true
+  become: true
+
+- name: Checking for reboot
+  ansible.builtin.stat:
+    path: /var/run/reboot-required get_md5=no
+  register: reboot_required_file
+
+- name: Rebooting if needed
+  ansible.builtin.reboot: # Error with msg: "Text" for vagrant use
+    connect_timeout: 5
+    reboot_timeout: 300 # 5mn
+    pre_reboot_delay: 0
+    post_reboot_delay: 30
+    test_command: uptime
+  when: reboot_required_file.stat.exists
+  become: true
