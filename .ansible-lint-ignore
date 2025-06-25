@@ -1,1 +1,0 @@
-ansible/roles/svc_kubernetes_helper/files/helm-cilium/ yaml[indentation] # disable yaml[indentation] rule
