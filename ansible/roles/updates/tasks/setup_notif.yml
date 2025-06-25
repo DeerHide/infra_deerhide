@@ -1,0 +1,70 @@
+---
+# code: language=ansible
+# [Doc] List of all module used
+# Templates "https://docs.ansible.com/ansible/latest/collections/ansible/builtin/template_module.html"
+# Service "https://docs.ansible.com/ansible/latest/collections/ansible/builtin/service_module.html"
+# File "https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html"
+# Copy "https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html"
+
+- name: Create deerhide-notifications user
+  ansible.builtin.user:
+    name: "deerhide-notifications"
+    state: present
+    shell: /bin/bash
+    home: /home/deerhide-notifications
+    createhome: true
+  become: true
+
+- name: Install "postfix" # Do "apt-get update" before installing postfix
+  ansible.builtin.apt:
+    name: postfix
+    state: latest # noqa: package-latest
+    update_cache: true
+  become: true
+
+- name: Deploy postfix config
+  ansible.builtin.copy:
+    src: files/main.cf
+    dest: /etc/postfix/main.cf
+    mode: "0644"
+  become: true
+  notify:
+    - Restart postfix service
+
+- name: Deploy aliases config
+  ansible.builtin.copy:
+    src: files/aliases
+    dest: /etc/aliases
+    mode: "0644"
+  become: true
+  notify:
+    - Update aliases file
+
+- name: Create script directory
+  ansible.builtin.file:
+    path: /home/deerhide-notifications/bin
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Copy bash script
+  ansible.builtin.template:
+    src: templates/notifyslack.sh.j2
+    dest: /home/deerhide-notifications/bin/notifyslack.sh
+    mode: "0755"
+  become: true
+
+- name: Update owner for directory and file
+  ansible.builtin.file:
+    owner: deerhide-notifications
+    group: deerhide-notifications
+    path: /home/deerhide-notifications/bin
+    state: directory
+    recurse: true
+  become: true
+
+- name: Make script executable
+  ansible.builtin.file:
+    path: /home/deerhide-notifications/bin/notifyslack.sh
+    mode: +x
+  become: true

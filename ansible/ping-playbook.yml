@@ -1,0 +1,9 @@
+---
+# code: language=ansible
+
+- name: Ping
+  hosts:
+    - melissa
+  tasks:
+    - name: Ping
+      ansible.builtin.ping: ~

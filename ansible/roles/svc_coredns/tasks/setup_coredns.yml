@@ -1,0 +1,52 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_coredns/tasks/setup_coredns.yml
+# This file contains the tasks to setup the Docker container for CoreDNS
+- name: Pull coredns image
+  community.docker.docker_image_pull:
+    name: "{{ coredns_docker_image_name }}"
+    tag: "{{ coredns_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_registry_hostname }}"
+  become: true
+
+- name: Create directory for coredns
+  ansible.builtin.file:
+    name: "{{ coredns_data_dir }}"
+    state: directory
+    mode: "700"
+    recurse: true
+  become: true
+
+- name: Deploy CoreDNS Configuration to Host
+  ansible.builtin.template:
+    src: Corefile.j2
+    dest: "{{ coredns_data_dir }}/Corefile"
+    mode: "600"
+  become: true
+
+- name: Create docker_volume for CoreDNS data
+  community.docker.docker_volume:
+    name: "{{ coredns_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ coredns_data_dir }}"
+    state: present
+  become: true
+
+- name: Create a CoreDNS container
+  community.docker.docker_container:
+    name: svc_coredns
+    image: "{{ coredns_docker_image_name }}:{{ coredns_docker_image_version }}"
+    state: started
+    restart_policy: always
+    ports:
+      - "53/udp:53/udp"
+    volumes:
+      - "{{ coredns_data_dir }}:/data"
+    recreate: true
+  become: true
