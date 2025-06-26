@@ -1,13 +1,6 @@
 ---
 # code: language=ansible
 
-- name: Install UsbLib
-  ansible.builtin.apt:
-    pkg: libusb-1.0-0
-    state: present
-    update_cache: true
-  become: true
-
 - name: Install nut server
   ansible.builtin.apt:
     pkg: nut
