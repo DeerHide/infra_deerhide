@@ -3,38 +3,40 @@
 
 - name: "Create Directory for Haproxy Config Volume"
   ansible.builtin.file:
-    path: "{{ svc_kube_haproxy_config_serve_dir }}"
+    path: "{{ svc_kube_haproxy_config_server_dir }}"
     state: directory
     owner: deerhide-operator
     group: deerhide-operator
     mode: "0755"
   become: true
 
-- name: "Copy Haproxy Config Serve"
+- name: "Copy Haproxy Config Server"
   ansible.builtin.copy:
     src: "{{ item }}"
-    dest: "{{ svc_kube_haproxy_config_serve_dir }}"
+    dest: "{{ svc_kube_haproxy_config_server_dir }}"
     owner: deerhide-operator
     group: deerhide-operator
     mode: "0644"
   loop:
     - haproxy.cfg
   become: true
+  notify:
+    - Restart the container if config changes
 
 - name: "Create Docker Volume"
   community.docker.docker_volume:
-    name: "{{ svc_kube_haproxy_config_serve_docker_volume_name }}"
+    name: "{{ svc_kube_haproxy_config_server_docker_volume_name }}"
     driver: local
     driver_options:
       type: "none"
       o: "bind"
-      device: "{{ svc_kube_haproxy_config_serve_dir }}"
+      device: "{{ svc_kube_haproxy_config_server_dir }}"
     state: present
 
 - name: "Create Haproxy Container"
   community.docker.docker_container:
-    name: "{{ svc_kube_haproxy_config_serve_docker_container_name }}"
-    image: "{{ svc_kube_haproxy_config_serve_docker_image_name }}"
+    name: "{{ svc_kube_haproxy_config_server_docker_container_name }}"
+    image: "{{ svc_kube_haproxy_config_server_docker_image_name }}"
     state: started
     restart_policy: always
     privileged: false
@@ -44,4 +46,4 @@
       - "4443:4443"
       - "7443:7443"
     volumes:
-      - "{{ svc_kube_haproxy_config_serve_docker_volume_name }}:/usr/local/etc/haproxy"
+      - "{{ svc_kube_haproxy_config_server_docker_volume_name }}:/usr/local/etc/haproxy"
