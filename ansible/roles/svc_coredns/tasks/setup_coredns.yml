@@ -16,7 +16,7 @@
   ansible.builtin.file:
     name: "{{ coredns_data_dir }}"
     state: directory
-    mode: "700"
+    mode: "777"
     recurse: true
   become: true
 
@@ -24,7 +24,7 @@
   ansible.builtin.template:
     src: Corefile.j2
     dest: "{{ coredns_data_dir }}/Corefile"
-    mode: "600"
+    mode: "777"
   become: true
 
 - name: Create docker_volume for CoreDNS data
@@ -44,9 +44,14 @@
     image: "{{ coredns_docker_image_name }}:{{ coredns_docker_image_version }}"
     state: started
     restart_policy: always
+    command: --conf /etc/coredns/Corefile
+    read_only: true
     ports:
-      - "53/udp:53/udp"
+      - "53:53/udp"
+    comparisons:
+      networks: strict
     volumes:
-      - "{{ coredns_data_dir }}:/data"
+      - "{{ coredns_data_dir }}:/etc/coredns"
+    networks_cli_compatible: true
     recreate: true
   become: true
