@@ -1,0 +1,10 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_haproxy/handlers/main.yml
+# Handlers
+
+- name: Restart the container if config changes
+  community.docker.docker_container:
+    name: "{{ svc_kube_haproxy_config_server_docker_container_name }}"
+    state: started
+    restart: true
