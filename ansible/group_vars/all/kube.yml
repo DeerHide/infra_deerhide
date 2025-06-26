@@ -1,0 +1,12 @@
+---
+# code: language=ansible
+# Path: ansible/group_vars/all/kube.yml
+# This file contains the variables for kube
+
+svc_kube_ip: 172.16.20.60
+#
+svc_kube_cilium_config_server_ip: 172.16.20.61
+svc_kube_cilium_config_server_dir: "{{ docker_volumes_dir }}/svc_kube_cilium_config_server"
+svc_kube_cilium_config_server_docker_volume_name: svc_kube_cilium_config_server_volume
+svc_kube_cilium_config_server_docker_container_name: svc_kube_cilium_config_server
+svc_kube_cilium_config_server_docker_image_name: httpd:latest
