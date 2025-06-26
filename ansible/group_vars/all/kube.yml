@@ -10,3 +10,9 @@ svc_kube_cilium_config_server_dir: "{{ docker_volumes_dir }}/svc_kube_cilium_con
 svc_kube_cilium_config_server_docker_volume_name: svc_kube_cilium_config_server_volume
 svc_kube_cilium_config_server_docker_container_name: svc_kube_cilium_config_server
 svc_kube_cilium_config_server_docker_image_name: httpd:latest
+#
+svc_kube_haproxy_config_serve_ip: 172.16.20.62
+svc_kube_haproxy_config_serve_dir: "{{ docker_volumes_dir }}/svc_kube_haproxy"
+svc_kube_haproxy_config_serve_docker_volume_name: svc_kube_haproxy_volume
+svc_kube_haproxy_config_serve_docker_container_name: svc_kube_haproxy
+svc_kube_haproxy_config_serve_docker_image_name: haproxy:latest
