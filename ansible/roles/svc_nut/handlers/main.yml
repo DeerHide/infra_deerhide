@@ -1,0 +1,26 @@
+---
+# code: language=ansible
+
+- name: Restart Service
+  ansible.builtin.systemd:
+    name: nut-server
+    state: restarted
+  become: true
+
+- name: Restart Nut Monitor
+  ansible.builtin.systemd:
+    name: nut-monitor
+    state: restarted
+  become: true
+
+- name: Enable Service
+  ansible.builtin.systemd:
+    name: nut-server
+    enabled: true
+  become: true
+
+- name: Enable Nut Monitor
+  ansible.builtin.systemd:
+    name: nut-monitor
+    enabled: true
+  become: true
