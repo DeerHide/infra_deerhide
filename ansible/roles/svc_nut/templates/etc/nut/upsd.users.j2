@@ -72,11 +72,11 @@
 # MONITOR myups@localhost 1 upsmon pass master  (or slave)
 
 [admin]
-    password = ADMIN_PASSWORD_HERE
+    password = {{ nut_admin_password }}
     actions = set
     actions = fsd
     instcmds = all
 
 [observer]
-    password = OBSERVER_PASSWORD_HERE
+    password = {{ nut_observer_password }}
     upsmon secondary
