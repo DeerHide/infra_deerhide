@@ -1,0 +1,4 @@
+---
+# code: language=ansible
+- name: Include install_nut_server.yml
+  ansible.builtin.include_tasks: install_nut_server.yml
