@@ -1,0 +1,46 @@
+---
+# code: language=ansible
+
+- name: "Create Directory for Cilium Config Volume"
+  ansible.builtin.file:
+    path: "{{ svc_kube_cilium_config_server_dir }}"
+    state: directory
+    owner: deerhide-operator
+    group: deerhide-operator
+    mode: "0755"
+  become: true
+
+- name: "Copy Cilium Config Serve"
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ svc_kube_cilium_config_server_dir }}"
+    owner: deerhide-operator
+    group: deerhide-operator
+    mode: "0644"
+  loop:
+    - cilium-prd-blue.yaml
+    - cilium-prd-mgt.yaml
+  become: true
+
+- name: "Create Docker Volume"
+  community.docker.docker_volume:
+    name: "{{ svc_kube_cilium_config_server_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ svc_kube_cilium_config_server_dir }}"
+    state: present
+
+- name: "Create Cilium Config Server Container"
+  community.docker.docker_container:
+    name: "{{ svc_kube_cilium_config_server_docker_container_name }}"
+    image: "{{ svc_kube_cilium_config_server_docker_image_name }}"
+    state: started
+    restart_policy: always
+    recreate: true
+    privileged: false
+    ports:
+      - "80:80"
+    volumes:
+      - "{{ svc_kube_cilium_config_server_docker_volume_name }}:/usr/local/apache2/htdocs/"
