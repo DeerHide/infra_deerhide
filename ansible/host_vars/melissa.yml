@@ -1,0 +1,6 @@
+---
+# code: language=yaml
+# Path: ansible/host_vars/melissa.yml
+# This file contains the variables for Melissa's host
+
+melissa_host_ip: "192.168.60.254"
