@@ -3,8 +3,6 @@
 - name: Melissa's playbook
   hosts:
     - melissa
-  vars:
-    melissa_host_ip: "192.168.60.254"
   roles:
     # - role: updates
     # - role: deerhide_users
