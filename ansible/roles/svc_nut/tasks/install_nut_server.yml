@@ -1,9 +1,9 @@
 ---
 # code: language=ansible
 
-- name: Install usb libraries
+- name: Install UsbLib
   ansible.builtin.apt:
-    pkg: libusb-1.0
+    pkg: libusb-1.0-0
     state: present
     update_cache: true
   become: true
