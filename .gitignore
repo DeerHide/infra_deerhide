@@ -1,5 +1,6 @@
 .venv
 
+.ansible/.lock
 # Env
 .env
 # Ansible Secrets

@@ -11,4 +11,5 @@
     # - role: svc_docker
     # - role: svc_coredns
     - role: svc_httpd
+    - role: svc_haproxy
     # - role: svc_nut
