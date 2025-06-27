@@ -5,6 +5,6 @@
   ansible.builtin.include_tasks:
     file: install_upsd.yml
 
-- name: Include Nut Server
+- name: Include Nut Web Monitor Docker container
   ansible.builtin.include_tasks:
-    file: install_nut_server.yml
+    file: setup_nut_web_monitor.yml

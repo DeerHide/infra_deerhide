@@ -5,6 +5,7 @@
   ansible.builtin.apt:
     name: nut
     state: present
+    update_cache: true
   become: true
 
 - name: Install UsbLib
@@ -31,7 +32,9 @@
     - "etc/nut/upsmon.conf.j2"
   become: true
   notify:
-    - Restart Service
+    - Restart Nut Server
+    - Ensure Nut Server is started
     - Restart Nut Monitor
-    - Enable Service
+    - Ensure Nut Monitor is started
+    - Enable Nut Server
     - Enable Nut Monitor
