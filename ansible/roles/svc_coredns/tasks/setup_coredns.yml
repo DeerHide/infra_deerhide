@@ -53,5 +53,7 @@
     volumes:
       - "{{ coredns_data_dir }}:/etc/coredns"
     networks_cli_compatible: true
+    labels:
+      traefik.enable: "false"
     recreate: true
   become: true
