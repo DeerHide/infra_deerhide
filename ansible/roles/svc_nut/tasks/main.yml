@@ -1,0 +1,10 @@
+---
+# code: language=ansible
+
+- name: Include Nut UPS Daemon
+  ansible.builtin.include_tasks:
+    file: install_upsd.yml
+
+- name: Include Nut Server
+  ansible.builtin.include_tasks:
+    file: install_nut_server.yml

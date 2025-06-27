@@ -5,8 +5,8 @@ set -euo pipefail
 SSH_IDENTITY_ALGO=ed25519
 SSH_IDENTITY_BITS=4096
 
-SSH_IDENTITY_FILE_PATH=~/.ssh/melissa.localunicorns.info
-SSH_CONFIG_PATH=~/.ssh/config.d/melissa.localunicorns.info
+SSH_IDENTITY_FILE_PATH=~/.ssh/melissa.host
+SSH_CONFIG_PATH=~/.ssh/config.d/melissa.host
 SSH_USER=deerhide-operator
 SSH_HOSTNAME=melissa
 SSH_PORT=22

@@ -1,0 +1,37 @@
+---
+# code: language=ansible
+
+- name: Install Nut UPS Daemon
+  ansible.builtin.apt:
+    name: nut
+    state: present
+  become: true
+
+- name: Install UsbLib
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - libusb-1.0-0
+    - libusb-1.0-0-dev
+  become: true
+
+- name: Deploy Nut Configuration
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "/{{ item | string | regex_replace('.j2', '') }}"
+    mode: "700"
+    owner: nut
+    group: nut
+  with_items:
+    - "etc/nut/nut.conf.j2"
+    - "etc/nut/ups.conf.j2"
+    - "etc/nut/upsd.conf.j2"
+    - "etc/nut/upsd.users.j2"
+    - "etc/nut/upsmon.conf.j2"
+  become: true
+  notify:
+    - Restart Service
+    - Restart Nut Monitor
+    - Enable Service
+    - Enable Nut Monitor
