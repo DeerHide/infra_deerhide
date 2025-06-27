@@ -140,14 +140,6 @@
 maxretry = 3
 
 [nutdev1]
-        driver = "usbhid-ups"
-        port = "auto"
-        vendorid = "051D"
-        productid = "0002"
-        bus = "002"
-        desc = "Server Rack UPS
-
-[nutdev2]
         driver = "apc_modbus"
         port = "auto"
         vendorid = "051D"
@@ -156,11 +148,21 @@ maxretry = 3
         serial = "AS1906234344"
         vendor = "American Power Conversion"
         bus = "001"
-        device = "006"
+        device = "018"
         busport = "004"
-        ###NOTMATCHED-YET###bcdDevice = "0001"
-        desc = "Server UPS Rack"
-
+        desc = "Server UPS Rack - Right"
+[nutdev2]
+        driver = "usbhid-ups"
+        port = "auto"
+        vendorid = "051D"
+        productid = "0002"
+        product = "Back-UPS RS 1600SI FW:963.g6 .I USB FW:g6"
+        serial = "5B2318T85893"
+        vendor = "American Power Conversion"
+        bus = "001"
+        device = "017"
+        busport = "003"
+        desc = "Server UPS Rack - Center"
 [nutdev3]
         driver = "apc_modbus"
         port = "auto"
@@ -170,11 +172,9 @@ maxretry = 3
         serial = "AS1411134103"
         vendor = "American Power Conversion"
         bus = "001"
-        device = "005"
-        busport = "003"
-        ###NOTMATCHED-YET###bcdDevice = "0106"
-        desc = "Server UPS Rack"
-
+        device = "012"
+        busport = "002"
+        desc = "Server UPS Rack - Down"
 [nutdev4]
         driver = "apc_modbus"
         port = "auto"
@@ -184,7 +184,6 @@ maxretry = 3
         serial = "AS1918264517"
         vendor = "American Power Conversion"
         bus = "001"
-        device = "004"
+        device = "011"
         busport = "001"
-        ###NOTMATCHED-YET###bcdDevice = "0001"
-        desc = "Server UPS Rack"
+        desc = "Server UPS Rack - Left"
