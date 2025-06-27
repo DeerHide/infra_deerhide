@@ -1,10 +1,17 @@
 ---
 # code: language=ansible
 
-- name: Restart Service
+- name: Restart Nut Server
   ansible.builtin.systemd:
     name: nut-server
     state: restarted
+  become: true
+
+- name: Ensure Nut Server is started
+  ansible.builtin.service:
+    name: nut-server.service
+    enabled: true
+    state: started
   become: true
 
 - name: Restart Nut Monitor
@@ -13,7 +20,14 @@
     state: restarted
   become: true
 
-- name: Enable Service
+- name: Ensure Nut Monitor is started
+  ansible.builtin.service:
+    name: nut-server.service
+    enabled: true
+    state: started
+  become: true
+
+- name: Enable Nut Server
   ansible.builtin.systemd:
     name: nut-server
     enabled: true
