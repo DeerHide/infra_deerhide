@@ -3,13 +3,11 @@
 - name: Melissa's playbook
   hosts:
     - melissa
-  vars:
-    melissa_host_ip: "192.168.2.7"
   roles:
-    # - role: updates
-    # - role: deerhide_users
-    # - role: svc_docker
-    # - role: svc_coredns
+    - role: updates
+    - role: deerhide_users
+    - role: svc_docker
+    - role: svc_coredns
     - role: svc_httpd
     - role: svc_haproxy
-    # - role: svc_nut
+    - role: svc_nut

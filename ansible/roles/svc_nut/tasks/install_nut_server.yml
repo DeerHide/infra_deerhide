@@ -1,0 +1,16 @@
+---
+# code: language=ansible
+
+- name: Install nut server
+  ansible.builtin.apt:
+    pkg: nut
+    state: present
+    update_cache: true
+  become: true
+
+- name: Ensure nut service is started
+  ansible.builtin.service:
+    name: nut.target
+    enabled: true
+    state: started
+  become: true
