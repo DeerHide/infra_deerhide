@@ -1,10 +1,55 @@
 #!/bin/bash
 
-# Slack Message
-MESSAGE=$(sed -n -e '7'p -e '16,19'p $1)
-
 # Slack Webhook
 WEBHOOK_URL="{{ slack_webhook_url }}"
 
-# POST request to Slack webhook with subject from unattended-upgrade notification
-curl -X POST -H 'Content-type: application/json' --data '{"text":"'"${MESSAGE}"'"}' $WEBHOOK_URL
+send_to_slack() {
+    local message="$1"
+    local message_length=${#message}
+    # Check message length (Slack max char limit)
+    if [ "$message_length" -gt 35000 ]; then
+       message="${message:0:35000}\n\n... (message truncated due to length)"
+    fi
+    curl -X POST -H 'Content-type: application/json' --data '{"text":"'"${message}"'"}' "$WEBHOOK_URL"
+}
+
+# Check if file exists and is readable
+if [ ! -f "$1" ] || [ ! -r "$1" ]; then
+    ERROR_MSG=":large_red_square: *Error:* File $1 does not exist or is not readable"
+    send_to_slack "$ERROR_MSG"
+    exit 1
+fi
+
+# Subject line
+LAST_SUBJECT_LINE=$(grep -n "Subject:" "$1" | tail -1 | cut -d: -f1)
+
+if [ -z "$LAST_SUBJECT_LINE" ]; then
+    ERROR_MSG=":large_red_square: *Error:* No Subject line found in $1"
+    send_to_slack "$ERROR_MSG"
+    exit 1
+fi
+SUBJECT=$(sed -n "${LAST_SUBJECT_LINE}p" "$1" | sed 's/Subject: //')
+
+# Get content start
+CONTENT_START=$(grep -n "^Unattended upgrade" "$1" | tail -1 | cut -d: -f1)
+if [ -z "$CONTENT_START" ]; then
+    ERROR_MSG=":large_red_square: *Error:* No 'Unattended upgrade' line found in $1"
+    send_to_slack "$ERROR_MSG"
+    exit 1
+fi
+
+# Get content end
+CONTENT_END=$(grep -n "Log ended" "$1" | tail -1 | cut -d: -f1)
+if [ -z "$CONTENT_END" ]; then
+    ERROR_MSG=":large_red_square: *Error:* No 'Log ended' line found in $1"
+    send_to_slack "$ERROR_MSG"
+    exit 1
+fi
+
+# Get the content
+EMAIL_CONTENT=$(sed -n "${CONTENT_START},${CONTENT_END}p" "$1")
+
+# Compose message
+MESSAGE="*Subject:* ${SUBJECT}\n\n*Content:*\n${EMAIL_CONTENT}"
+
+send_to_slack "$MESSAGE"
