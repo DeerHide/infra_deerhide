@@ -8,7 +8,7 @@ send_to_slack() {
     local message_length=${#message}
     # Check message length (Slack max char limit)
     if [ "$message_length" -gt 35000 ]; then
-       message="${message:0:35000}\n\n... (message truncated due to length)"
+       message=$(printf "%s\n\n... (message truncated due to length)" "${message:0:35000}")
     fi
     curl -X POST -H 'Content-type: application/json' --data '{"text":"'"${message}"'"}' "$WEBHOOK_URL"
 }
