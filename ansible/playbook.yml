@@ -8,20 +8,14 @@
     - role: updates
     - role: deerhide_users
     - role: svc_docker
-<<<<<<< HEAD
     - role: svc_traefik
-=======
->>>>>>> 2750e5f5 (fix: 🐛 add bunryl's playbook and minio role)
     - role: svc_coredns
     - role: svc_httpd
     - role: svc_haproxy
     - role: svc_nut
-<<<<<<< HEAD
-=======
 
 - name: Bunryl's playbook
   hosts:
     - bunryl
   roles:
     - role: svc_minio
->>>>>>> 2750e5f5 (fix: 🐛 add bunryl's playbook and minio role)
