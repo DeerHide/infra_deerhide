@@ -40,7 +40,9 @@
     restart_policy: always
     recreate: true
     privileged: false
-    ports:
-      - "80:80"
     volumes:
       - "{{ svc_kube_cilium_config_server_docker_volume_name }}:/usr/local/apache2/htdocs/"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.svc_httpd.rule: "PathPrefix(`/`)"
+      traefik.http.services.svc_httpd.loadbalancer.server.port: "80"
