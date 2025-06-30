@@ -1,0 +1,78 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_minio/tasks/requirements_synology.yml
+# Install the requirements for the svc_minio role on Synology hosts
+# It's required on the target machine to be able to use the json_query module
+# https://blog.networktocode.com/post/ansible-filtering-json-query/
+
+- name: Download "setuptools"
+  ansible.builtin.get_url:
+    url: "https://files.pythonhosted.org/packages/18/5d/3bf57dcd21979b887f014ea83c24ae194cfcd12b9e0fda66b957c69d1fca/setuptools-80.9.0.tar.gz"
+    dest: "/tmp/setuptools-80.9.0.tar.gz"
+    mode: '0644'
+  become: true
+
+- name: Extract "setuptools"
+  ansible.builtin.unarchive:
+    src: "/tmp/setuptools-80.9.0.tar.gz"
+    dest: "/tmp/"
+    remote_src: true
+  become: true
+
+- name: Install "setuptools"
+  ansible.builtin.command:
+    cmd: /usr/local/bin/python3.9 setup.py install
+    chdir: /tmp/setuptools-80.9.0
+  become: true
+  changed_when: false
+
+- name: Download "jmespath"
+  ansible.builtin.get_url:
+    url: "https://files.pythonhosted.org/packages/00/2a/e867e8531cf3e36b41201936b7fa7ba7b5702dbef42922193f05c8976cd6/jmespath-1.0.1.tar.gz"
+    dest: "/tmp/jmespath-1.0.1.tar.gz"
+    mode: '0644'
+  become: true
+
+- name: Extract "jmespath"
+  ansible.builtin.unarchive:
+    src: "/tmp/jmespath-1.0.1.tar.gz"
+    dest: "/tmp/"
+    remote_src: true
+  become: true
+
+- name: Install "jmespath"
+  ansible.builtin.command:
+    cmd: /usr/local/bin/python3.9 setup.py install
+    chdir: /tmp/jmespath-1.0.1
+  become: true
+  changed_when: false
+
+- name: Download "jq"
+  ansible.builtin.get_url:
+    url: "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64"
+    dest: "/usr/local/bin/jq"
+    mode: '0755'
+  become: true
+
+- name: Download the static git binary # TODO: Do tasks to get the latest git version
+  ansible.builtin.get_url:
+    url: "https://github.com/git/git/archive/refs/tags/v2.50.0.tar.gz"
+    dest: "/tmp/v2.50.0.tar.gz"
+    mode: '0644'
+  become: true
+
+- name: Extract the git binary
+  ansible.builtin.unarchive:
+    src: "/tmp/v2.50.0.tar.gz"
+    dest: "/usr/local/"
+    remote_src: true
+    extra_opts: [--strip-components=1]
+  become: true
+
+- name: Check if git is available
+  ansible.builtin.command:
+    cmd: /usr/local/bin/git --version
+  register: git_version
+  become: true
+  changed_when: false
+  # noqa: command-instead-of-module
