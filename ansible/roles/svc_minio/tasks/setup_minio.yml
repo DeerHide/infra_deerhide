@@ -1,0 +1,62 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_minio/tasks/setup_minio.yml
+# This file contains the tasks to setup the Docker container for Minio
+- name: Pull minio image
+  community.docker.docker_image_pull:
+    name: "{{ minio_docker_image_name }}"
+    tag: "{{ minio_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_registry_hostname }}"
+  become: true
+
+- name: Create directory for minio
+  ansible.builtin.file:
+    name: "{{ minio_data_dir }}"
+    state: directory
+    mode: "700"
+    recurse: true
+  become: true
+
+- name: Create docker_volume for Minio data
+  community.docker.docker_volume:
+    name: "{{ minio_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ minio_data_dir }}"
+    state: present
+  become: true
+
+- name: Create a Minio container
+  community.docker.docker_container:
+    name: svc_minio
+    image: "{{ minio_docker_image_name }}:{{ minio_docker_image_version }}"
+    state: started
+    restart_policy: always
+    command: server /data --console-address ":9001"
+    exposed_ports:
+      - 9000
+      - 9001
+    ports:
+      - "9000"
+      - "9001"
+    env:
+      MINIO_ROOT_USER: "{{ bunryl_minio_root_user }}"
+      MINIO_ROOT_PASSWORD: "{{ bunryl_minio_root_password }}"
+    volumes:
+      - "{{ minio_data_dir }}:/data"
+    # labels: # Uncomment after traefik is installed
+    #   traefik.enable: "true"
+    #   traefik.http.routers.svc_minio.rule: "Host(`minio.host`)"
+    #   traefik.http.routers.svc_minio.service: "svc_minio_service"
+    #   traefik.http.services.svc_minio_service.loadbalancer.server.port: "9000"
+    #   traefik.http.routers.svc_minio_console.rule: "Host(`console-minio.host`)"
+    #   traefik.http.routers.svc_minio_console.service: "svc_minio_console_service"
+    #   traefik.http.services.svc_minio_console_service.loadbalancer.server.port: "9001"
+    log_driver: "json-file"
+    recreate: true
+  become: true
