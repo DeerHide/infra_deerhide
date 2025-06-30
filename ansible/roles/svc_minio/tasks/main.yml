@@ -1,11 +1,7 @@
 ---
 # code: language=ansible
 
-- name: Include tasks from requirements.yml
-  ansible.builtin.include_tasks: requirements.yml
-
-- name: Include tasks from import_gpg_keys.yml
-  ansible.builtin.include_tasks: import_gpg_keys.yml
+# Setup Minio
 
 - name: Include tasks from setup_minio.yml
   ansible.builtin.include_tasks: setup_minio.yml

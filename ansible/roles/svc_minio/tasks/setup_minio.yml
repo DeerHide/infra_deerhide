@@ -49,7 +49,7 @@
       MINIO_ROOT_PASSWORD: "{{ bunryl_minio_root_password }}"
     volumes:
       - "{{ minio_data_dir }}:/data"
-    # labels: # Uncomment after traefik is installed
+    # labels: # Uncomment after traefik will be installed
     #   traefik.enable: "true"
     #   traefik.http.routers.svc_minio.rule: "Host(`minio.host`)"
     #   traefik.http.routers.svc_minio.service: "svc_minio_service"
