@@ -1,0 +1,8 @@
+---
+# code: language=ansible
+# Path: ansible/host_vars/melissa.yml
+# This file contains the variables for the melissa host
+
+# Variables for the Operator GPG service
+
+deerhide_operator_home: "/home/deerhide-operator"
