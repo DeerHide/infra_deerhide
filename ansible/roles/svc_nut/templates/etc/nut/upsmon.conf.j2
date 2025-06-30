@@ -83,7 +83,10 @@
 # MONITOR su700@server.example.com 1 upsmon secretpass slave
 # MONITOR myups@localhost 1 upsmon pass master  (or slave)
 
-MONITOR server-rack@localhost 1 admin ADMIN_PASSWORD_HERE primary
+MONITOR nutdev1@localhost 1 admin {{ nut_admin_password }} primary
+MONITOR nutdev2@localhost 1 admin {{ nut_admin_password }} primary
+MONITOR nutdev3@localhost 1 admin {{ nut_admin_password }} primary
+MONITOR nutdev4@localhost 1 admin {{ nut_admin_password }} primary
 
 
 # --------------------------------------------------------------------------

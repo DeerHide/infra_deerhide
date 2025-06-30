@@ -47,3 +47,5 @@
       - "7443:7443"
     volumes:
       - "{{ svc_kube_haproxy_config_server_docker_volume_name }}:/usr/local/etc/haproxy"
+    labels:
+      traefik.enable: "false"

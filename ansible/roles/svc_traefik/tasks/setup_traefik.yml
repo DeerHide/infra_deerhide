@@ -1,0 +1,62 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_traefik/tasks/setup_traefik.yml
+# This file contains the tasks to setup the Docker container for Traefik
+- name: Pull traefik image
+  community.docker.docker_image_pull:
+    name: "{{ traefik_docker_image_name }}"
+    tag: "{{ traefik_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_registry_hostname }}"
+  become: true
+
+- name: Create directory for traefik
+  ansible.builtin.file:
+    name: "{{ traefik_data_dir }}"
+    state: directory
+    mode: "700"
+    recurse: true
+  become: true
+
+- name: Deploy Traefik Configuration to Host
+  ansible.builtin.template:
+    src: traefik.yml.j2
+    dest: "{{ traefik_data_dir }}/traefik.yml"
+    mode: "600"
+  become: true
+
+- name: Create docker_volume for Traefik data
+  community.docker.docker_volume:
+    name: "{{ traefik_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ traefik_data_dir }}"
+    state: present
+  become: true
+
+- name: Create a container
+  community.docker.docker_container:
+    name: svc_traefik
+    image: "{{ traefik_docker_image_name }}:{{ traefik_docker_image_version }}"
+    state: started
+    restart_policy: always
+    entrypoint:
+      - /usr/local/bin/traefik
+    command: --configFile=/etc/traefik/traefik.yml
+    ports:
+      - "80:80"
+      - "444:443"
+      - "8080:8080"
+    volumes:
+      - "{{ traefik_data_dir }}/traefik.yml:/etc/traefik/traefik.yml"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.svc_traefik.rule: "Host(`traefik.host`)"
+      traefik.http.services.svc_traefik.loadbalancer.server.port: "8080"
+    recreate: true
+  become: true
