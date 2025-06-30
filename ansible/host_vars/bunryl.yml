@@ -1,0 +1,8 @@
+---
+# code: language=ansible
+# Path: ansible/host_vars/bunryl.yml
+# This file contains the variables for the bunryl host
+
+# Variables for the Operator GPG service
+
+deerhide_operator_home: "/var/services/homes/deerhide-operator"
