@@ -1,0 +1,13 @@
+---
+# code: language=ansible
+
+# Setup Minio
+
+- name: Include tasks from setup_minio.yml
+  ansible.builtin.include_tasks: setup_minio.yml
+
+- name: Include tasks from setup_minio_alias.yml
+  ansible.builtin.include_tasks: setup_minio_alias.yml
+
+- name: Include tasks from setup_minio_users.yml
+  ansible.builtin.include_tasks: setup_minio_users.yml

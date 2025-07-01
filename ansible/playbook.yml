@@ -1,5 +1,6 @@
 ---
 # code: language=ansible
+
 - name: Melissa's playbook
   hosts:
     - melissa
@@ -12,3 +13,10 @@
     - role: svc_httpd
     - role: svc_haproxy
     - role: svc_nut
+
+- name: Bunryl's playbook
+  hosts:
+    - bunryl
+  roles:
+    - role: cli_minio
+    - role: svc_minio
