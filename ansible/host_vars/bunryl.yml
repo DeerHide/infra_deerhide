@@ -6,3 +6,5 @@
 # Variables for the Operator GPG service
 
 deerhide_operator_home: "/var/services/homes/deerhide-operator"
+git_executable_path: "/usr/local/bin/git"
+python_executable_path: "/usr/local/bin/python3.9"
