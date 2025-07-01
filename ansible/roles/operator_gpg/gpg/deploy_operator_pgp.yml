@@ -41,6 +41,7 @@
     depth: 1
     single_branch: true
     dest: /opt/operator/operator-gpg
+    executable: "{{ git_executable_path }}"
     version: main
     accept_hostkey: true
     key_file: "{{ deerhide_operator_home }}/.ssh/github_operator-gpg_deploy_key"
