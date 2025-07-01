@@ -18,4 +18,5 @@
   hosts:
     - bunryl
   roles:
+    - role: cli_minio
     - role: svc_minio
