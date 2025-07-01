@@ -7,12 +7,12 @@
   block:
     - name: Check if bunryl alias exists
       ansible.builtin.command:
-        cmd: mc alias list
+        cmd: /usr/local/bin/mc alias list
       changed_when: false
       register: minio_alias_list
 
-    - name: Create alias bunryl if don't exists
+    - name: Create alias 'bunryl' if it doesn't exist
       ansible.builtin.command:
-        cmd: mc alias set bunryl http://172.16.20.10:9000 {{ bunryl_minio_root_user }} {{ bunryl_minio_root_password }}
+        cmd: /usr/local/bin/mc alias set bunryl http://192.168.3.220:9000 {{ bunryl_minio_root_user }} {{ bunryl_minio_root_password }}
       changed_when: true
       when: minio_alias_list.stdout.find('bunryl') == -1
