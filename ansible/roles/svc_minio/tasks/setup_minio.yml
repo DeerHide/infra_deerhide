@@ -42,8 +42,8 @@
       - 9000
       - 9001
     ports:
-      - "9000"
-      - "9001"
+      - "9000:9000"
+      - "9001:9001"
     env:
       MINIO_ROOT_USER: "{{ bunryl_minio_root_user }}"
       MINIO_ROOT_PASSWORD: "{{ bunryl_minio_root_password }}"
