@@ -1,6 +1,12 @@
 ---
 # code: language=ansible
 
+# Requirements
+
+- name: Include tasks from requirements.yml
+  ansible.builtin.include_tasks: requirements.yml
+  when: ansible_hostname == "bunryl"
+
 # Setup Minio
 
 - name: Include tasks from setup_minio.yml
