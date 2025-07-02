@@ -8,3 +8,9 @@
 deerhide_operator_home: "/home/deerhide-operator"
 git_executable_path: "/usr/bin/git"
 python_executable_path: "/usr/bin/python3"
+
+# Variables for the DNS hostnames
+
+traefik_host: "traefik.melissa.deerhide.run"
+minio_host: "minio.melissa.deerhide.run"
+minio_console_host: "console-minio.melissa.deerhide.run"
