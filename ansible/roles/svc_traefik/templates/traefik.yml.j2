@@ -5,6 +5,14 @@ entryPoints:
     address: :80
   websecure:
     address: :443
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: letsencrypt@deerhide.run
+      storage: acme.json
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 0
 
 # Docker configuration backend
 providers:
