@@ -9,7 +9,7 @@ certificatesResolvers:
   cloudflare:
     acme:
       email: letsencrypt@deerhide.run
-      storage: acme.json
+      storage: /etc/traefik/acme.json
       dnsChallenge:
         provider: cloudflare
         delayBeforeCheck: 0
@@ -17,6 +17,9 @@ certificatesResolvers:
 # Docker configuration backend
 providers:
   docker: {}
+  file:
+    directory: /etc/traefik/dynamic/
+    watch: true
 
 # API and dashboard configuration
 api:
