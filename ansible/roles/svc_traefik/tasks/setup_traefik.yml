@@ -38,6 +38,27 @@
     state: present
   become: true
 
+- name: Create acme.json file for SSL certificates
+  ansible.builtin.file:
+    path: "{{ traefik_data_dir }}/acme.json"
+    state: touch
+    mode: "0600"
+  become: true
+
+- name: Create dynamic directory for Traefik
+  ansible.builtin.file:
+    path: "{{ traefik_data_dir }}/dynamic"
+    state: directory
+    mode: "700"
+  become: true
+
+- name: Deploy bunryl dynamic configuration to Traefik
+  ansible.builtin.template:
+    src: bunryl.yml.j2
+    dest: "{{ traefik_data_dir }}/dynamic/bunryl.yml"
+    mode: "600"
+  become: true
+
 - name: Create a container
   community.docker.docker_container:
     name: svc_traefik
@@ -49,14 +70,27 @@
     command: --configFile=/etc/traefik/traefik.yml
     ports:
       - "80:80"
-      - "444:443"
+      - "443:443"
       - "8080:8080"
     volumes:
       - "{{ traefik_data_dir }}/traefik.yml:/etc/traefik/traefik.yml"
       - "/var/run/docker.sock:/var/run/docker.sock"
+      - "{{ traefik_data_dir }}/acme.json:/etc/traefik/acme.json"
+      - "{{ traefik_data_dir }}/dynamic:/etc/traefik/dynamic"
+    env:
+      CF_DNS_API_TOKEN: "{{ letsencrypt_api_token }}"
     labels:
       traefik.enable: "true"
+      # Router HTTPS (websecure)
       traefik.http.routers.svc_traefik.rule: "Host(`{{ traefik_host }}`)"
-      traefik.http.services.svc_traefik.loadbalancer.server.port: "8080"
-    recreate: true
+      traefik.http.routers.svc_traefik.entrypoints: "websecure"
+      traefik.http.routers.svc_traefik.tls: "true"
+      traefik.http.routers.svc_traefik.tls.certresolver: "cloudflare"
+      traefik.http.routers.svc_traefik.service: "svc_traefik_service"
+      traefik.http.services.svc_traefik_service.loadbalancer.server.port: "8080"
+      # Router HTTP (web) → redirection HTTPS
+      traefik.http.routers.svc_traefik_http.rule: "Host(`{{ traefik_host }}`)"
+      traefik.http.routers.svc_traefik_http.entrypoints: "web"
+      traefik.http.routers.svc_traefik_http.middlewares: "redirect-to-https"
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
   become: true
