@@ -57,6 +57,10 @@
       traefik.http.routers.svc_minio_console.rule: "Host(`{{ minio_console_host }}`)"
       traefik.http.routers.svc_minio_console.service: "svc_minio_console_service"
       traefik.http.services.svc_minio_console_service.loadbalancer.server.port: "9001"
+      traefik.http.routers.svc_minio_console.tls: "true"
+      traefik.http.routers.svc_minio_console.tls.certresolver: "cloudflare"
+      traefik.http.routers.svc_minio.tls: "true"
+      traefik.http.routers.svc_minio.tls.certresolver: "cloudflare"
     log_driver: "json-file"
     recreate: true
   become: true
