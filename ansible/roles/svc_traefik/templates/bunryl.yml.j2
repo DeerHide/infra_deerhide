@@ -1,0 +1,18 @@
+## bunryl.yml
+
+http:
+  routers:
+    bunryl:
+      rule: "Host(`bunryl.deerhide.run`)"
+      entryPoints:
+        - web
+        - websecure
+      service: bunryl_service
+      tls:
+        certResolver: cloudflare
+
+  services:
+    bunryl_service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.3.220:5002"
