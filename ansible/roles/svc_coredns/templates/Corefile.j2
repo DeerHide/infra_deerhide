@@ -1,8 +1,11 @@
 deerhide.run {
     hosts {
-        192.168.60.188  nut.melanie.deerhide.run
-        192.168.60.188  traefik.melanie.deerhide.run
-        192.168.60.188  static.melanie.deerhide.run
+        192.168.60.188  nut.melissa.deerhide.run
+        192.168.60.188  traefik.melissa.deerhide.run
+        192.168.60.188  static.melissa.deerhide.run
+        192.168.3.220   traefik.bunryl.deerhide.run
+        192.168.3.220   minio.bunryl.deerhide.run
+        192.168.3.220   bunryl.deerhide.run
         fallthrough
     }
     forward . 192.168.60.1
@@ -47,10 +50,10 @@ velmios.dev {
 
 host {
     hosts {
-        192.168.60.188  static.host
-        192.168.60.188  sysunicorns.kube.host
-        192.168.60.188  traefik.host
+        192.168.60.188  melissa.host
+        192.168.60.189  melanie.host
         192.168.60.188  nut.host
+        192.168.3.220  bunryl.host
         fallthrough
     }
     forward . 192.168.60.1
