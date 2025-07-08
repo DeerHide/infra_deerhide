@@ -1,0 +1,16 @@
+---
+# code: language=ansible
+# Path: ansible/host_vars/bunryl.yml
+# This file contains the variables for the bunryl host
+
+# Variables for the Operator GPG service
+
+deerhide_operator_home: "/var/services/homes/deerhide-operator"
+git_executable_path: "/usr/local/bin/git"
+python_executable_path: "/usr/local/bin/python3.9"
+
+# Variables for the DNS hostnames
+
+traefik_host: "traefik.bunryl.deerhide.run"
+minio_host: "minio.bunryl.deerhide.run"
+minio_console_host: "console-minio.bunryl.deerhide.run"
