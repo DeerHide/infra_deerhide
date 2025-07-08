@@ -1,0 +1,33 @@
+---
+# code: language=ansible
+
+# Requirements (packages)
+
+- name: Include tasks from requirements_ubuntu.yml
+  ansible.builtin.include_tasks: requirements_ubuntu.yml
+  when: ansible_distribution == "Ubuntu"
+
+- name: Include tasks from requirements_otherlinux.yml
+  ansible.builtin.include_tasks: requirements_otherlinux.yml
+  when: ansible_distribution == "OtherLinux"
+
+# Deploy Operator PGP
+
+- name: Import deploy_operator_pgp.yml
+  ansible.builtin.import_tasks: gpg/deploy_operator_pgp.yml
+
+# Check if GPG Host has been generated
+
+- name: Import check_if_gpg_host_as_been_generated.yml
+  ansible.builtin.import_tasks: facts/check_if_gpg_host_as_been_generated.yml
+
+# Generate Host PGP
+
+- name: Import generate_host_pgp.yml
+  ansible.builtin.import_tasks: gpg/generate_host_pgp.yml
+  when: gpg_key_exists == false  # noqa: literal-compare
+
+# Import GPG Keys
+
+- name: Include tasks from import_gpg_keys.yml
+  ansible.builtin.include_tasks: import_gpg_keys.yml

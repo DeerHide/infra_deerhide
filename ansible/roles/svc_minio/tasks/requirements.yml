@@ -3,21 +3,36 @@
 # Path: ansible/roles/svc_minio/tasks/requirements.yml
 # Install the requirements for the svc_minio role
 
-# It's required on the target machine to be able to use the json_query module
-# https://blog.networktocode.com/post/ansible-filtering-json-query/
-- name: Install "jmespath"
-  ansible.builtin.apt:
-    name: python3-jmespath
-    state: latest # noqa: package-latest
-  become: true
-  become_user: "{{ item }}"
-  with_items:
-    - root
-    - deerhide-operator
+- name: Check if pip is available for python3.9
+  ansible.builtin.command:
+    cmd: "{{ python_executable_path }} -m pip --version"
+  register: pip_check
+  ignore_errors: true
+  changed_when: false
 
-- name: Install "jq"
-  ansible.builtin.apt:
-    name: jq
-    state: latest # noqa: package-latest
-    update_cache: true
+- name: Install pip if missing (via ensurepip)
+  ansible.builtin.command:
+    cmd: "{{ python_executable_path }} -m ensurepip"
+  when: pip_check.rc != 0
   become: true
+  changed_when: false
+
+- name: Check again if pip is available
+  ansible.builtin.command:
+    cmd: "{{ python_executable_path }} -m pip --version"
+  register: pip_check2
+  ignore_errors: true
+  changed_when: false
+
+- name: Fail if pip is not available
+  ansible.builtin.fail:
+    msg: "pip is not available for {{ python_executable_path }}. Please install it manually."
+  when: pip_check2.rc != 0
+  changed_when: false
+
+- name: Install requests module for python3.9
+  ansible.builtin.command:
+    cmd: "{{ python_executable_path }} -m pip install requests"
+  become: true
+  args:
+    creates: "{{ python_executable_path }}/site-packages/requests"
