@@ -1,0 +1,22 @@
+---
+# code: language=ansible
+# Path: ansible/group_vars/all/packages.yml
+# This file contains the variables for packages variable
+
+# TODO: Factorize version number
+
+# Variables for setuptools
+
+setuptools_download_url: "https://files.pythonhosted.org/packages/18/5d/3bf57dcd21979b887f014ea83c24ae194cfcd12b9e0fda66b957c69d1fca/setuptools-80.9.0.tar.gz"
+setuptools_download_file: "/tmp/setuptools-80.9.0.tar.gz"
+setuptools_download_dir: "/tmp/setuptools-80.9.0"
+
+# Variables for jmespath
+
+jmespath_download_url: "https://files.pythonhosted.org/packages/00/2a/e867e8531cf3e36b41201936b7fa7ba7b5702dbef42922193f05c8976cd6/jmespath-1.0.1.tar.gz"
+jmespath_download_file: "/tmp/jmespath-1.0.1.tar.gz"
+jmespath_download_dir: "/tmp/jmespath-1.0.1"
+
+# Variables for jq
+
+jq_download_url: "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64"

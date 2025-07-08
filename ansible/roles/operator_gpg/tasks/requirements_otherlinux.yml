@@ -1,0 +1,77 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_minio/tasks/requirements_synology.yml
+# Install the requirements for the svc_minio role on Synology hosts
+# It's required on the target machine to be able to use the json_query module
+# https://blog.networktocode.com/post/ansible-filtering-json-query/
+
+- name: Setuptools package download and install
+  block:
+    - name: Download "setuptools"
+      ansible.builtin.get_url:
+        url: "{{ setuptools_download_url }}"
+        dest: "{{ setuptools_download_file }}"
+        mode: '0644'
+      become: true
+
+    - name: Extract "setuptools"
+      ansible.builtin.unarchive:
+        src: "{{ setuptools_download_file }}"
+        dest: "/tmp/"
+        remote_src: true
+      become: true
+
+    - name: Install "setuptools"
+      ansible.builtin.command:
+        cmd: /usr/local/bin/python3.9 setup.py install
+        chdir: "{{ setuptools_download_dir }}"
+      become: true
+      changed_when: false
+
+- name: Jmespath package download and install
+  block:
+    - name: Download "jmespath"
+      ansible.builtin.get_url:
+        url: "{{ jmespath_download_url }}"
+        dest: "{{ jmespath_download_file }}"
+        mode: '0644'
+      become: true
+
+    - name: Extract "jmespath"
+      ansible.builtin.unarchive:
+        src: "{{ jmespath_download_file }}"
+        dest: "/tmp/"
+        remote_src: true
+      become: true
+
+    - name: Install "jmespath"
+      ansible.builtin.command:
+        cmd: /usr/local/bin/python3.9 setup.py install
+        chdir: "{{ jmespath_download_dir }}"
+      become: true
+      changed_when: false
+
+- name: Jq package download
+  block:
+    - name: Download "jq"
+      ansible.builtin.get_url:
+        url: "{{ jq_download_url }}"
+        dest: "/usr/local/bin/jq"
+        mode: '0755'
+      become: true
+
+- name: Git package download and install
+  block:
+    - name: Check if git is available
+      ansible.builtin.command:
+        cmd: /usr/local/bin/git --version
+      register: git_version
+      become: true
+      changed_when: false
+      ignore_errors: true
+      # noqa: command-instead-of-module
+
+    - name: Fail if git is not available
+      ansible.builtin.fail:
+        msg: "Install Git packages directly on {{ ansible_hostname }}"
+      when: git_version.rc != 0
