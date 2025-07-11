@@ -4,6 +4,8 @@
 - name: Ping
   hosts:
     - melissa
+    - claudia
+    - bunryl
   tasks:
     - name: Ping
       ansible.builtin.ping: ~
