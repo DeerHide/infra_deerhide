@@ -6,4 +6,6 @@
 .env
 # Ansible Secrets
 .vault_pass.txt
-ansible_facts.json
+
+# Ansible Facts
+.ansible_facts_cache
