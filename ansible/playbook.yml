@@ -22,3 +22,10 @@
     - role: operator_gpg
     - role: svc_traefik
     - role: svc_minio
+
+- name: Claudia's playbook
+  hosts:
+    - claudia
+  roles:
+    - role: updates
+    - role: deerhide_users
