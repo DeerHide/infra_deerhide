@@ -29,3 +29,4 @@
   roles:
     - role: updates
     - role: deerhide_users
+    - role: operator_gpg
