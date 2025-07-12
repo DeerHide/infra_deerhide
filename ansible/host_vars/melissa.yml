@@ -9,6 +9,9 @@ deerhide_operator_home: "/home/deerhide-operator"
 git_executable_path: "/usr/bin/git"
 python_executable_path: "/usr/bin/python3"
 
+# Operator GPG configuration
+gpg_group: deerhide-operator
+
 # Variables for the DNS hostnames
 
 traefik_host: "traefik.melissa.deerhide.run"
