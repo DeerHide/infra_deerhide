@@ -8,6 +8,7 @@
     state: directory
     mode: "0755"
     owner: deerhide-operator
+    group: "{{ gpg_group | default(omit) }}"
   become: true
 
 - name: Deploy gpg.conf
@@ -16,6 +17,7 @@
     dest: "{{ deerhide_operator_home }}/.gnupg/gpg.conf"
     mode: "0755"
     owner: deerhide-operator
+    group: "{{ gpg_group | default(omit) }}"
   become: true
 
 - name: Deploy gpg-agent.conf
@@ -24,6 +26,7 @@
     dest: "{{ deerhide_operator_home }}/.gnupg/gpg-agent.conf"
     mode: "0755"
     owner: deerhide-operator
+    group: "{{ gpg_group | default(omit) }}"
   become: true
 
 - name: Deploy gen-key-script
@@ -32,14 +35,27 @@
     dest: "/opt/operator/gen-key-script"
     mode: "0755"
     owner: deerhide-operator
+    group: "{{ gpg_group | default(omit) }}"
   become: true
+
+- name: Start gpg-agent with correct configuration
+  ansible.builtin.shell:
+    cmd: |
+      export GNUPGHOME="{{ deerhide_operator_home }}/.gnupg"
+      pkill gpg-agent || true
+      sleep 2
+      gpg-agent --daemon --allow-loopback-pinentry --pinentry-program /usr/bin/pinentry-curses
+  become: true
+  become_user: deerhide-operator
+  changed_when: false
 
 - name: Generate the host PGP key # noqa: command-instead-of-shell
   ansible.builtin.shell:
     executable: "/bin/bash"
     cmd: |
       set -eo pipefail
-      echo RELOADAGENT | gpg-connect-agent
+      export GNUPGHOME="{{ deerhide_operator_home }}/.gnupg"
+      export GPG_TTY=$(tty 2>/dev/null || echo /dev/console)
       echo {{ host_gpg_passphrase }} | gpg --batch --passphrase-fd 0 --gen-key /opt/operator/gen-key-script
   args:
     creates: "/opt/operator/host-gpg"
