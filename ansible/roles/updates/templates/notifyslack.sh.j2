@@ -3,53 +3,20 @@
 # Slack Webhook
 WEBHOOK_URL="{{ slack_webhook_url }}"
 
-send_to_slack() {
-    local message="$1"
-    local message_length=${#message}
-    # Check message length (Slack max char limit)
-    if [ "$message_length" -gt 35000 ]; then
-       message=$(printf "%s\n\n... (message truncated due to length)" "${message:0:35000}")
-    fi
-    curl -X POST -H 'Content-type: application/json' --data '{"text":"'"${message}"'"}' "$WEBHOOK_URL"
-}
+# Extract Subject line
+SUBJECT=$(grep -m1 "^Subject:" "$1")
 
-# Check if file exists and is readable
-if [ ! -f "$1" ] || [ ! -r "$1" ]; then
-    ERROR_MSG=":large_red_square: *Error:* File $1 does not exist or is not readable"
-    send_to_slack "$ERROR_MSG"
-    exit 1
-fi
-
-# Subject line
-LAST_SUBJECT_LINE=$(grep -n "Subject:" "$1" | tail -1 | cut -d: -f1)
-
-if [ -z "$LAST_SUBJECT_LINE" ]; then
-    ERROR_MSG=":large_red_square: *Error:* No Subject line found in $1"
-    send_to_slack "$ERROR_MSG"
-    exit 1
-fi
-SUBJECT=$(sed -n "${LAST_SUBJECT_LINE}p" "$1" | sed 's/Subject: //')
-
-# Get content start
-CONTENT_START=$(grep -n "^Unattended upgrade" "$1" | tail -1 | cut -d: -f1)
-if [ -z "$CONTENT_START" ]; then
-    ERROR_MSG=":large_red_square: *Error:* No 'Unattended upgrade' line found in $1"
-    send_to_slack "$ERROR_MSG"
-    exit 1
-fi
-
-# Get content end
-CONTENT_END=$(grep -n "Log ended" "$1" | tail -1 | cut -d: -f1)
-if [ -z "$CONTENT_END" ]; then
-    ERROR_MSG=":large_red_square: *Error:* No 'Log ended' line found in $1"
-    send_to_slack "$ERROR_MSG"
-    exit 1
-fi
-
-# Get the content
-EMAIL_CONTENT=$(sed -n "${CONTENT_START},${CONTENT_END}p" "$1")
+# Extract mail body (after the first empty line)
+BODY=$(awk 'f{print} /^$/{f=1}' "$1")
 
 # Compose message
-MESSAGE="*Subject:* ${SUBJECT}\n\n*Content:*\n${EMAIL_CONTENT}"
-
-send_to_slack "$MESSAGE"
+if [[ -n "$SUBJECT" || -n "$BODY" ]]; then
+    MESSAGE="${SUBJECT}\n${BODY}"
+    # Remove leading/trailing whitespace
+    MESSAGE=$(echo -e "$MESSAGE" | sed '/^[[:space:]]*$/d')
+    # Send to Slack
+    curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"${MESSAGE}\"}" "$WEBHOOK_URL"
+else
+    # No mail or no updates, send notification
+    curl -X POST -H 'Content-type: application/json' --data '{"text":"No update was necessary or no mail was sent."}' "$WEBHOOK_URL"
+fi

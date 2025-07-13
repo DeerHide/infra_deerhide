@@ -1,7 +1,7 @@
 ---
 # code: language=ansible
-# Path: ansible/host_vars/melissa.yml
-# This file contains the variables for the melissa host
+# Path: ansible/host_vars/claudia.yml
+# This file contains the variables for the claudia host
 
 # Variables for the Operator GPG service
 
@@ -14,6 +14,6 @@ gpg_group: deerhide-operator
 
 # Variables for the DNS hostnames
 
-traefik_host: "traefik.melissa.deerhide.run"
-minio_host: "minio.melissa.deerhide.run"
-minio_console_host: "console-minio.melissa.deerhide.run"
+traefik_host: "traefik.claudia.deerhide.run"
+minio_host: "minio.claudia.deerhide.run"
+minio_console_host: "console-minio.claudia.deerhide.run"

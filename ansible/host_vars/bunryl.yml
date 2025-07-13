@@ -9,6 +9,9 @@ deerhide_operator_home: "/var/services/homes/deerhide-operator"
 git_executable_path: "/usr/local/bin/git"
 python_executable_path: "/usr/local/bin/python3.9"
 
+# Operator GPG configuration (null for Synology)
+gpg_group: null
+
 # Variables for the DNS hostnames
 
 traefik_host: "traefik.bunryl.deerhide.run"
