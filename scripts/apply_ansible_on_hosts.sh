@@ -29,8 +29,10 @@ fi
 declare -a PLAYBOOKS
 PLAYBOOKS+=("ansible/playbook.yml (All hosts)")
 
-# Dynamically add host-specific playbooks if they exist
-for host in $(awk '/^\[/{g=$0} /^[^#].*ansible_host=/{print $1}' ${ANSIBLE_INVENTORY}); do
+# Extraire la liste unique des hôtes
+HOSTS=($(awk '/^[^#\\[]/ && /ansible_host=/{print $1}' ${ANSIBLE_INVENTORY} | sort -u))
+
+for host in "${HOSTS[@]}"; do
   pb="ansible/${host}-playbook.yml"
   if [[ -f "$pb" ]]; then
     PLAYBOOKS+=("$pb ($host only)")
