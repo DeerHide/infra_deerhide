@@ -1,0 +1,11 @@
+---
+# code: language=ansible
+
+- name: All rasp's playbook
+  hosts:
+    - rasp
+  roles:
+    - role: updates
+    - role: deerhide_users
+    - role: operator_gpg
+    - role: svc_docker

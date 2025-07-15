@@ -1,0 +1,8 @@
+---
+# code: language=ansible
+
+- name: Claudia's playbook
+  hosts:
+    - claudia
+  roles:
+    - role: svc_docker # Base playbook

@@ -1,0 +1,11 @@
+---
+# code: language=ansible
+
+- name: Bunryl's playbook
+  hosts:
+    - bunryl
+  roles:
+    - role: cli_minio
+    - role: operator_gpg
+    - role: svc_traefik
+    - role: svc_minio
