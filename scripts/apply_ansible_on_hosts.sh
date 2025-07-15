@@ -27,7 +27,7 @@ fi
 
 # List available playbooks
 declare -a PLAYBOOKS
-PLAYBOOKS+=("ansible/playbook.yml (All hosts)")
+PLAYBOOKS+=("ansible/playbook.yml (All hosts)", "ansible/rasp-playbook.yml (Rasp hosts)")
 
 # Extraire la liste unique des hôtes
 HOSTS=($(awk '/^[^#\\[]/ && /ansible_host=/{print $1}' ${ANSIBLE_INVENTORY} | sort -u))

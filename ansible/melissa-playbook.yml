@@ -5,8 +5,6 @@
   hosts:
     - melissa
   roles:
-    - role: updates
-    - role: deerhide_users
     - role: svc_docker
     - role: svc_traefik
     - role: svc_coredns
