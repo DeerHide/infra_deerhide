@@ -5,7 +5,6 @@
   hosts:
     - melissa
   roles:
-    - role: svc_docker
     - role: svc_traefik
     - role: svc_coredns
     - role: svc_httpd

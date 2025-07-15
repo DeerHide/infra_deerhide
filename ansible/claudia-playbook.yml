@@ -5,4 +5,4 @@
   hosts:
     - claudia
   roles:
-    - role: svc_docker
+    - role: svc_docker # Base playbook

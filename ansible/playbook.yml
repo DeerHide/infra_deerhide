@@ -5,7 +5,6 @@
   hosts:
     - melissa
   roles:
-    - role: svc_docker
     - role: svc_traefik
     - role: svc_coredns
     - role: svc_httpd
@@ -21,8 +20,8 @@
     - role: svc_traefik
     - role: svc_minio
 
-- name: Claudia's playbook
-  hosts:
-    - claudia
-  roles:
-    - role: svc_docker
+# - name: Claudia's playbook
+#   hosts:
+#     - claudia
+#   roles:
+#     - role: TBD

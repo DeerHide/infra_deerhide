@@ -8,3 +8,4 @@
     - role: updates
     - role: deerhide_users
     - role: operator_gpg
+    - role: svc_docker
