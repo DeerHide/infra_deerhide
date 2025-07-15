@@ -78,7 +78,7 @@
       - "{{ traefik_data_dir }}/acme.json:/etc/traefik/acme.json"
       - "{{ traefik_data_dir }}/dynamic:/etc/traefik/dynamic"
     env:
-      CF_DNS_API_TOKEN: "{{ letsencrypt_api_token }}"
+      CF_DNS_API_TOKEN: "{{ cloudflare_api_token_letsencrypt_deerhide_zone }}"
     labels:
       traefik.enable: "true"
       # Router HTTPS (websecure)
