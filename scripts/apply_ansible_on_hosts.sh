@@ -25,9 +25,33 @@ then
   exit 1
 fi
 
-# Launch ansible playbook
+# List available playbooks
+declare -a PLAYBOOKS
+PLAYBOOKS+=("ansible/playbook.yml (All hosts)")
+
+# Dynamically add host-specific playbooks if they exist
+for host in $(awk '/^\[/{g=$0} /^[^#].*ansible_host=/{print $1}' ${ANSIBLE_INVENTORY}); do
+  pb="ansible/${host}-playbook.yml"
+  if [[ -f "$pb" ]]; then
+    PLAYBOOKS+=("$pb ($host only)")
+  fi
+done
+
+# Prompt user to select a playbook
+echo "Which playbook do you want to run?"
+select PB_DESC in "${PLAYBOOKS[@]}"; do
+  if [[ -n "$PB_DESC" ]]; then
+    # Extract the playbook path (before the first space)
+    PB_PATH=$(echo "$PB_DESC" | awk '{print $1}')
+    echo "You selected: $PB_PATH"
+    break
+  else
+    echo "Invalid choice. Please select a valid playbook."
+  fi
+done
+
 ansible-playbook \
     -i ${ANSIBLE_INVENTORY} \
     --vault-id="default@${ANSIBLE_VAULT_PASSWORD_FILE}" \
     -e @ansible-vars.yml \
-    ./ansible/playbook.yml
+    "$PB_PATH"

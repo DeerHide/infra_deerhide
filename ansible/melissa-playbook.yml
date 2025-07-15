@@ -1,0 +1,15 @@
+---
+# code: language=ansible
+
+- name: Melissa's playbook
+  hosts:
+    - melissa
+  roles:
+    - role: updates
+    - role: deerhide_users
+    - role: svc_docker
+    - role: svc_traefik
+    - role: svc_coredns
+    - role: svc_httpd
+    - role: svc_haproxy
+    - role: svc_nut

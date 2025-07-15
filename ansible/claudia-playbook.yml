@@ -1,0 +1,10 @@
+---
+# code: language=ansible
+
+- name: Claudia's playbook
+  hosts:
+    - claudia
+  roles:
+    - role: updates
+    - role: deerhide_users
+    - role: operator_gpg
