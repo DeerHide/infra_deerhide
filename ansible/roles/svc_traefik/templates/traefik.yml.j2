@@ -5,10 +5,21 @@ entryPoints:
     address: :80
   websecure:
     address: :443
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: letsencrypt@deerhide.run
+      storage: /etc/traefik/acme.json
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 0
 
 # Docker configuration backend
 providers:
   docker: {}
+  file:
+    directory: /etc/traefik/dynamic/
+    watch: true
 
 # API and dashboard configuration
 api:
