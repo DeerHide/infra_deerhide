@@ -45,6 +45,7 @@
     mode: "0600"
   become: true
 
+# TODO: Move this in specific file or put it in "block:"
 - name: Create dynamic directory for Traefik
   ansible.builtin.file:
     path: "{{ traefik_data_dir }}/dynamic"
@@ -58,6 +59,7 @@
     dest: "{{ traefik_data_dir }}/dynamic/bunryl.yml"
     mode: "600"
   become: true
+  when: ansible_hostname == 'bunryl'
 
 - name: Create a container
   community.docker.docker_container:
