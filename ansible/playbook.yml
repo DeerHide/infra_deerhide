@@ -20,8 +20,8 @@
     - role: svc_traefik
     - role: svc_minio
 
-# - name: Claudia's playbook
-#   hosts:
-#     - claudia
-#   roles:
-#     - role: TBD
+- name: Claudia's playbook
+  hosts:
+    - claudia
+  roles:
+    - role: svc_traefik
