@@ -6,3 +6,5 @@
     - claudia
   roles:
     - role: svc_traefik
+    - role: cli_minio
+    - role: svc_minio

@@ -2,6 +2,7 @@
 # code: language=ansible
 # Path: ansible/roles/svc_minio/tasks/setup_minio.yml
 # This file contains the tasks to setup the Docker container for Minio
+
 - name: Pull minio image
   community.docker.docker_image_pull:
     name: "{{ minio_docker_image_name }}"
@@ -45,8 +46,8 @@
       - "9000:9000"
       - "9001:9001"
     env:
-      MINIO_ROOT_USER: "{{ bunryl_minio_root_user }}"
-      MINIO_ROOT_PASSWORD: "{{ bunryl_minio_root_password }}"
+      MINIO_ROOT_USER: "{{ deerhide_minio_root_user }}"
+      MINIO_ROOT_PASSWORD: "{{ deerhide_minio_root_password }}"
     volumes:
       - "{{ minio_data_dir }}:/data"
     labels:
@@ -62,5 +63,4 @@
       traefik.http.routers.svc_minio.tls: "true"
       traefik.http.routers.svc_minio.tls.certresolver: "cloudflare"
     log_driver: "json-file"
-    recreate: true
   become: true
