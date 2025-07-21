@@ -13,9 +13,8 @@ WEBHOOK_URL="{{ slack_webhook_url }}"
 
 send_to_slack() {
     local message="$1"
-    local message_length=${message}
     # Check message length (Slack max char limit)
-    if [ "$message_length" -gt 35000 ]; then
+    if [ "${'{' }#message{'}'}" -gt 35000 ]; then
        message=$(printf "%s\n\n... (message truncated due to length)" "${message:0:35000}")
     fi
     curl -X POST -H 'Content-type: application/json' --data '{"text":"'"${message}"'"}' "$WEBHOOK_URL"
@@ -49,13 +48,17 @@ if [ -z "$CONTENT_START" ]; then
     exit 1
 fi
 
-# Get content end (line before "Unattended-upgrades log:")
+# Get content end (line before "Unattended-upgrades log:" or "Log ended")
 CONTENT_END=$(grep -n "^Unattended-upgrades log:" "$INPUT" | tail -1 | cut -d: -f1)
+
 if [ -z "$CONTENT_END" ]; then
-    ERROR_MSG=":large_red_square: *Error:* No 'Unattended-upgrades log:' line found in $INPUT"
-    send_to_slack "$ERROR_MSG"
-    [ -n "$TMPFILE" ] && rm -f "$TMPFILE"
-    exit 1
+    CONTENT_END=$(grep -n "Log ended" "$INPUT" | tail -1 | cut -d: -f1)
+    if [ -z "$CONTENT_END" ]; then
+        ERROR_MSG=":large_red_square: *Error:* No 'Unattended-upgrades log:' or 'Log ended' line found in $INPUT"
+        send_to_slack "$ERROR_MSG"
+        [ -n "$TMPFILE" ] && rm -f "$TMPFILE"
+        exit 1
+    fi
 fi
 
 CONTENT_END=$((CONTENT_END - 1))
