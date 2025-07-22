@@ -6,7 +6,7 @@
   ansible.builtin.file:
     path: "{{ deerhide_operator_home }}/.gnupg"
     state: directory
-    mode: "0755"
+    mode: "0700"
     owner: deerhide-operator
     group: "{{ gpg_group | default(omit) }}"
   become: true
@@ -15,7 +15,7 @@
   ansible.builtin.template:
     src: "templates/gpg.conf.j2"
     dest: "{{ deerhide_operator_home }}/.gnupg/gpg.conf"
-    mode: "0755"
+    mode: "0600"
     owner: deerhide-operator
     group: "{{ gpg_group | default(omit) }}"
   become: true
@@ -24,7 +24,7 @@
   ansible.builtin.template:
     src: "templates/gpg-agent.conf.j2"
     dest: "{{ deerhide_operator_home }}/.gnupg/gpg-agent.conf"
-    mode: "0755"
+    mode: "0600"
     owner: deerhide-operator
     group: "{{ gpg_group | default(omit) }}"
   become: true
@@ -33,7 +33,7 @@
   ansible.builtin.template:
     src: "templates/gen-key-script.j2"
     dest: "/opt/operator/gen-key-script"
-    mode: "0755"
+    mode: "0600"
     owner: deerhide-operator
     group: "{{ gpg_group | default(omit) }}"
   become: true
@@ -42,11 +42,15 @@
   ansible.builtin.shell:
     cmd: |
       export GNUPGHOME="{{ deerhide_operator_home }}/.gnupg"
-      pkill gpg-agent || true
+      pkill -u $(whoami) gpg-agent || true
       sleep 2
       gpg-agent --daemon --allow-loopback-pinentry --pinentry-program /usr/bin/pinentry-curses
   become: true
   become_user: deerhide-operator
+  register: gpg_agent_result
+  failed_when: >
+    gpg_agent_result.rc != 0 and
+    ('gpg-agent: a gpg-agent is already running - not starting a new one' not in gpg_agent_result.stderr)
   changed_when: false
 
 - name: Generate the host PGP key # noqa: command-instead-of-shell
