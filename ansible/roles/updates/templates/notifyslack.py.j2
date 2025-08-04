@@ -1,0 +1,243 @@
+#!/bin/python3
+
+import sys
+import tempfile
+import os
+import re
+import requests
+import json
+
+SLACK_TOKEN = "{{ slack_token }}"  # Bot User OAuth Token
+SLACK_CHANNEL = "{{ slack_loginfo_channel }}"  # Channel ID or name
+HOSTNAME = "{{ ansible_hostname }}"  # Hostname of the machine
+USERNAME = "{{ ansible_user_id }}"  # Username running the update
+BOT_USERNAME = "{{ ansible_hostname | capitalize }}_System_Updates"  # Bot username for Slack
+
+def send_to_slack_blocks(blocks, username=None, thread_ts=None):
+    """Send message with rich formatting using Slack blocks"""
+    url = "https://slack.com/api/chat.postMessage"
+    headers = {
+        "Authorization": f"Bearer {SLACK_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "channel": SLACK_CHANNEL,
+        "blocks": blocks
+    }
+
+    if username:
+        payload["username"] = username
+
+    if thread_ts:
+        payload["thread_ts"] = thread_ts
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        result = response.json()
+
+        if result.get("ok"):
+            return result.get("ts")  # Return timestamp for threading
+        else:
+            print(f"Slack API error: {result.get('error')}")
+            return None
+    except requests.RequestException as e:
+        print(f"Request error: {e}")
+        return None
+
+def send_simple_message(text, username=None, thread_ts=None):
+    """Send simple text message"""
+    url = "https://slack.com/api/chat.postMessage"
+    headers = {
+        "Authorization": f"Bearer {SLACK_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "channel": SLACK_CHANNEL,
+        "text": text
+    }
+
+    if username:
+        payload["username"] = username
+
+    if thread_ts:
+        payload["thread_ts"] = thread_ts
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        result = response.json()
+
+        if result.get("ok"):
+            return result.get("ts")
+        else:
+            print(f"Slack API error: {result.get('error')}")
+            return None
+    except requests.RequestException as e:
+        print(f"Request error: {e}")
+        return None
+
+def read_input():
+    if len(sys.argv) < 2:
+        with tempfile.NamedTemporaryFile(delete=False, mode='w+') as tmp:
+            tmp.write(sys.stdin.read())
+            return tmp.name, tmp.name
+    return sys.argv[1], None
+
+def extract_lines(filepath):
+    try:
+        with open(filepath, 'r') as f:
+            return f.readlines()
+    except IOError:
+        msg = f":large_red_square: *Error:* File {filepath} does not exist or is not readable"
+        send_simple_message(msg, BOT_USERNAME)
+        return None
+
+def find_last_subject(lines):
+    for i in reversed(range(len(lines))):
+        if lines[i].startswith("Subject:"):
+            return lines[i].strip().split("Subject:", 1)[1].strip()
+    return None
+
+def find_content_indices(lines):
+    start = end = None
+    for i in reversed(range(len(lines))):
+        if re.match(r"^Unattended upgrade", lines[i]):
+            start = i
+            break
+    for i in reversed(range(len(lines))):
+        if re.match(r"^Unattended-upgrades log:", lines[i]) or re.match(r"^Package installation log:", lines[i]):
+            end = i
+            break
+    return start, (end - 1) if end else None
+
+def find_log_indices(lines):
+    start = end = None
+    for i in range(len(lines)):
+        if re.match(r"^Package installation log:", lines[i]):
+            start = i + 1  # Start after the "Package installation log:" line
+            break
+    for i in reversed(range(len(lines))):
+        if re.match(r"^Log ended:", lines[i]):
+            end = i - 1  # End before the "Log ended:" line
+            break
+    return start, end
+
+def create_main_message_blocks(subject, content):
+    """Create rich formatted blocks for main message"""
+    # Determine status and emoji based on subject
+    if 'SUCCESS' in subject:
+        status_emoji = "✅"
+        status_text = "Success"
+    elif 'FAILED' in subject or 'ERROR' in subject:
+        status_emoji = "❌"
+        status_text = "Failed"
+    else:
+        status_emoji = "⚠️"
+        status_text = "Warning"
+
+    # Check if reboot is required
+    reboot_required = "reboot required" in subject.lower()
+    reboot_emoji = "🔄" if reboot_required else ""
+
+    blocks = [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": f":rotating_light: System Update Notification"
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Server:*\n🖥️ `{HOSTNAME}`"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Status:*\n{status_emoji} {status_text}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Reboot:*\n{reboot_emoji} {'Required' if reboot_required else 'Not Required'}"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*_Update Details:_*\n{content}"
+            }
+        }
+    ]
+    return blocks
+
+def main():
+    input_file, tmp_file = read_input()
+    lines = extract_lines(input_file)
+    if lines is None:
+        if tmp_file:
+            os.unlink(tmp_file)
+        return
+
+    subject = find_last_subject(lines)
+    if not subject:
+        send_simple_message(f":large_red_square: *Error:* No Subject line found in {input_file}", BOT_USERNAME)
+        if tmp_file:
+            os.unlink(tmp_file)
+        return
+
+    start, end = find_content_indices(lines)
+    if start is None or end is None:
+        send_simple_message(f":large_red_square: *Error:* No valid content section found in {input_file}", BOT_USERNAME)
+        if tmp_file:
+            os.unlink(tmp_file)
+        return
+
+    content = ''.join(lines[start:end + 1])
+
+    # Send main message with rich formatting
+    blocks = create_main_message_blocks(subject, content)
+    thread_ts = send_to_slack_blocks(blocks, BOT_USERNAME)
+
+    if thread_ts:
+        # Find and send log content in thread
+        log_start, log_end = find_log_indices(lines)
+        if log_start is not None and log_end is not None and log_start <= log_end:
+            log_content = ''.join(lines[log_start:log_end + 1])
+            if log_content.strip():
+                # Send log as collapsible section in thread
+                log_blocks = [
+                    {
+                        "type": "header",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "📋 Package Installation Log"
+                        }
+                    },
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": f"```{log_content}```"
+                        }
+                    }
+                ]
+                send_to_slack_blocks(log_blocks, BOT_USERNAME, thread_ts)
+        else:
+            # Send info message if no log found
+            send_simple_message("ℹ️ *Note:* No package installation log found in this update", BOT_USERNAME, thread_ts)
+
+    if tmp_file:
+        os.unlink(tmp_file)
+
+if __name__ == "__main__":
+    main()
