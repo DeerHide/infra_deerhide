@@ -5,6 +5,8 @@
 
 # Slack ID for logging-warn channel on slack
 slack_channel: "C078SSDKMPE"
+# Slack ID for Logging-info channel on slack
+slack_loginfo_channel: "C076WSK9KGV"
 # Slack ID for members on slack
 slack_mirage: "U076WRF4GRK"
 slack_nakou: "U076T6095FG"
