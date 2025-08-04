@@ -6,6 +6,7 @@
     - melissa
     - claudia
     - bunryl
+    - helene
   tasks:
     - name: Ping
       ansible.builtin.ping: ~
