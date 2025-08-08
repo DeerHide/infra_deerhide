@@ -11,7 +11,7 @@ SLACK_TOKEN = "{{ slack_token }}"  # Bot User OAuth Token
 SLACK_CHANNEL = "{{ slack_loginfo_channel }}"  # Channel ID or name
 HOSTNAME = "{{ ansible_hostname }}"  # Hostname of the machine
 USERNAME = "{{ ansible_user_id }}"  # Username running the update
-BOT_USERNAME = "{{ ansible_hostname | capitalize }}_System_Updates"  # Bot username for Slack
+BOT_USERNAME = "{{ ansible_hostname | capitalize }}"  # Bot username for Slack
 
 def send_to_slack_blocks(blocks, username=None, thread_ts=None):
     """Send message with rich formatting using Slack blocks"""
@@ -109,7 +109,7 @@ def find_content_indices(lines):
             break
     for i in reversed(range(len(lines))):
         if re.match(r"^Unattended-upgrades log:", lines[i]) or re.match(r"^Package installation log:", lines[i]):
-            end = i
+            end = i - 1
             break
     return start, (end - 1) if end else None
 
@@ -117,7 +117,7 @@ def find_log_indices(lines):
     start = end = None
     for i in range(len(lines)):
         if re.match(r"^Package installation log:", lines[i]):
-            start = i + 1  # Start after the "Package installation log:" line
+            start = i - 1  # Start before the "Package installation log:" line
             break
     for i in reversed(range(len(lines))):
         if re.match(r"^Log ended:", lines[i]):
@@ -147,16 +147,12 @@ def create_main_message_blocks(subject, content):
             "type": "header",
             "text": {
                 "type": "plain_text",
-                "text": f":rotating_light: System Update Notification"
+                "text": f"System Update Notification"
             }
         },
         {
             "type": "section",
             "fields": [
-                {
-                    "type": "mrkdwn",
-                    "text": f"*Server:*\n🖥️ `{HOSTNAME}`"
-                },
                 {
                     "type": "mrkdwn",
                     "text": f"*Status:*\n{status_emoji} {status_text}"
