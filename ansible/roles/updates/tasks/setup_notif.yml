@@ -47,10 +47,10 @@
     mode: "0755"
   become: true
 
-- name: Copy bash script
+- name: Copy python script
   ansible.builtin.template:
-    src: templates/notifyslack.sh.j2
-    dest: /home/deerhide-notifications/bin/notifyslack.sh
+    src: templates/notifyslack.py.j2
+    dest: /home/deerhide-notifications/bin/notifyslack.py
     mode: "0755"
   become: true
 
@@ -65,6 +65,6 @@
 
 - name: Make script executable
   ansible.builtin.file:
-    path: /home/deerhide-notifications/bin/notifyslack.sh
+    path: /home/deerhide-notifications/bin/notifyslack.py
     mode: +x
   become: true
