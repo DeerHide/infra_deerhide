@@ -10,18 +10,6 @@
     mode: "0755"
   become: true
 
-- name: "Copy Cilium Config Serve"
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: "{{ svc_kube_cilium_config_server_dir }}"
-    owner: deerhide-operator
-    group: deerhide-operator
-    mode: "0644"
-  loop:
-    - cilium-prd-blue.yaml
-    - cilium-prd-mgt.yaml
-  become: true
-
 - name: "Create Docker Volume"
   community.docker.docker_volume:
     name: "{{ svc_kube_cilium_config_server_docker_volume_name }}"
