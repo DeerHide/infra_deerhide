@@ -103,3 +103,11 @@
   changed_when: false
   failed_when: remove_tmp_minio_file == ""
   become: true
+
+- name: Add consoleAdmin policy for each user
+  ansible.builtin.command:
+    cmd: /usr/local/bin/mc admin policy attach -u {{ item.name }} {{ ansible_hostname }} consoleAdmin
+  become: true
+  become_user: deerhide-operator
+  changed_when: false
+  with_items: "{{ svc_minio_users }}"
