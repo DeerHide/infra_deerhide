@@ -60,3 +60,13 @@
     log_driver: "json-file"
     recreate: true
   become: true
+
+- name: Wait for MinIO API to be ready
+  ansible.builtin.uri:
+    url: "https://{{ minio_host }}/minio/health/live"
+    method: GET
+    validate_certs: true
+  register: minio_health
+  until: minio_health.status == 200
+  retries: 30
+  delay: 2
