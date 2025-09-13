@@ -1,0 +1,45 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_minio/tasks/cleanup_minio_alias.yml
+# This file contains the tasks to create deerhide-operator alias for Minio
+
+- name: Check and remove alias if exists
+  block:
+    - name: Check if MinIO alias exists for {{ ansible_hostname }}
+      ansible.builtin.command:
+        cmd: /usr/local/bin/mc alias list
+      become: true
+      become_user: deerhide-operator
+      changed_when: false
+      register: minio_alias_exists
+
+    - name: Remove MinIO alias if exists for {{ ansible_hostname }}
+      ansible.builtin.command:
+        cmd: >
+          /usr/local/bin/mc alias rm {{ ansible_hostname }}
+      become: true
+      become_user: deerhide-operator
+      changed_when: true
+      when: ansible_hostname in minio_alias_exists.stdout
+
+- name: Check MinIO alias and display status
+  block:
+    - name: Check if MinIO alias has been removed for {{ ansible_hostname }}
+      ansible.builtin.shell:
+        cmd: |
+          if /usr/local/bin/mc alias list | grep -q "{{ ansible_hostname }}"; then
+            echo "MinIO alias {{ ansible_hostname }} still exists"
+            exit 1
+          else
+            echo "MinIO alias {{ ansible_hostname }} has been removed"
+            exit 0
+          fi
+      become: true
+      become_user: deerhide-operator
+      changed_when: false
+      failed_when: false
+      register: alias_check
+
+    - name: Display alias removal status
+      ansible.builtin.debug:
+        msg: "{{ alias_check.stdout }}"
