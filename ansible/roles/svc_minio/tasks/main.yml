@@ -17,3 +17,8 @@
 
 - name: Include tasks from setup_minio_users.yml
   ansible.builtin.include_tasks: setup_minio_users.yml
+
+# Cleanup tasks for MinIO alias
+
+- name: Include tasks from cleanup_minio_alias.yml
+  ansible.builtin.include_tasks: cleanup_minio_alias.yml
