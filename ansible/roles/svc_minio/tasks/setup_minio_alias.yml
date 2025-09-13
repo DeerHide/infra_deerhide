@@ -17,7 +17,7 @@
       ansible.builtin.command:
         cmd: >
           /usr/local/bin/mc alias set {{ ansible_hostname }}
-          http://{{ ansible_eth0.ipv4.address }}:9000
+          https://{{ minio_host }}
           {{ deerhide_minio_root_user }}
           {{ deerhide_minio_root_password }}
       become: true
