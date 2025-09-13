@@ -39,15 +39,10 @@
     state: started
     restart_policy: always
     command: server /data --console-address ":9001"
-    exposed_ports:
-      - 9000
-      - 9001
-    ports:
-      - "9000:9000"
-      - "9001:9001"
     env:
       MINIO_ROOT_USER: "{{ deerhide_minio_root_user }}"
       MINIO_ROOT_PASSWORD: "{{ deerhide_minio_root_password }}"
+      MINIO_BROWSER_REDIRECT_URL: "https://{{ minio_console_host }}"
     volumes:
       - "{{ minio_data_dir }}:/data"
     labels:
@@ -63,4 +58,5 @@
       traefik.http.routers.svc_minio.tls: "true"
       traefik.http.routers.svc_minio.tls.certresolver: "cloudflare"
     log_driver: "json-file"
+    recreate: true
   become: true
