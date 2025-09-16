@@ -1,0 +1,58 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_svn/tasks/setup_svn.yml
+# This file contains the tasks to setup the Docker container for SVN
+
+- name: Pull svn image
+  community.docker.docker_image_pull:
+    name: "{{ svn_docker_image_name }}"
+    tag: "{{ svn_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_ghcr_registry_hostname }}"
+  become: true
+
+- name: Create directory for svn
+  ansible.builtin.file:
+    name: "{{ svn_data_dir }}"
+    state: directory
+    mode: "700"
+    recurse: true
+  become: true
+
+- name: Create docker_volume for SVN data
+  community.docker.docker_volume:
+    name: "{{ svn_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ svn_data_dir }}"
+    state: present
+  become: true
+
+- name: Create a SVN container
+  community.docker.docker_container:
+    name: svc_svn
+    image: "{{ svn_docker_image_name }}:{{ svn_docker_image_version }}"
+    state: started
+    restart_policy: always
+    volumes:
+      - "{{ svn_data_dir }}:/data"
+    # TODO: Uncomment on the install of Traefik container
+    # labels:
+    #   traefik.enable: "true"
+    #   traefik.http.routers.svc_minio.rule: "Host(`{{ minio_host }}`)"
+    #   traefik.http.routers.svc_minio.service: "svc_minio_service"
+    #   traefik.http.services.svc_minio_service.loadbalancer.server.port: "9000"
+    #   traefik.http.routers.svc_minio_console.rule: "Host(`{{ minio_console_host }}`)"
+    #   traefik.http.routers.svc_minio_console.service: "svc_minio_console_service"
+    #   traefik.http.services.svc_minio_console_service.loadbalancer.server.port: "9001"
+    #   traefik.http.routers.svc_minio_console.tls: "true"
+    #   traefik.http.routers.svc_minio_console.tls.certresolver: "cloudflare"
+    #   traefik.http.routers.svc_minio.tls: "true"
+    #   traefik.http.routers.svc_minio.tls.certresolver: "cloudflare"
+    log_driver: "json-file"
+    recreate: true
+  become: true
