@@ -1,0 +1,7 @@
+---
+# code: language=ansible
+
+# Setup SVN
+
+- name: Include tasks from setup_svn.yml
+  ansible.builtin.include_tasks: setup_svn.yml

@@ -1,0 +1,45 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_svn/tasks/setup_svn.yml
+# This file contains the tasks to setup the Docker container for SVN
+
+- name: Pull svn image
+  community.docker.docker_image_pull:
+    name: "{{ svn_docker_image_name }}"
+    tag: "{{ svn_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_ghcr_registry_hostname }}"
+  become: true
+
+- name: Create directory for svn
+  ansible.builtin.file:
+    name: "{{ svn_data_dir }}"
+    state: directory
+    mode: "700"
+    recurse: true
+  become: true
+
+- name: Create docker_volume for SVN data
+  community.docker.docker_volume:
+    name: "{{ svn_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ svn_data_dir }}"
+    state: present
+  become: true
+
+- name: Create a SVN container
+  community.docker.docker_container:
+    name: svc_svn
+    image: "{{ svn_docker_image_name }}:{{ svn_docker_image_version }}"
+    state: started
+    restart_policy: always
+    volumes:
+      - "{{ svn_data_dir }}:/data"
+    log_driver: "json-file"
+    recreate: true
+  become: true

@@ -1,0 +1,11 @@
+---
+# code: language=ansible
+# Path: ansible/group_vars/all/svn.yml
+# This file contains the variables for the SVN service
+
+
+svn_data_dir_name: svc_svn_data
+svn_data_dir: "{{ docker_volumes_dir }}/{{ svn_data_dir_name }}"
+svn_docker_image_name: ghcr.io/deerhide/svn_server_docker
+svn_docker_image_version: latest-arm64
+svn_docker_volume_name: svc_svn_data_volume
