@@ -1,0 +1,8 @@
+---
+# code: language=ansible
+
+- name: Helene's playbook
+  hosts:
+    - helene
+  roles:
+    - role: svc_svn
