@@ -1,5 +1,5 @@
 {
-    "ansible.python.interpreterPath": "/home/nakou/infra_melissa/.venv/bin/python",
+    "ansible.python.interpreterPath": "/bin/python3",
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
     "editor.formatOnSave": true
