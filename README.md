@@ -1,4 +1,5 @@
 # infra_deerhide
+
 Ansible Configuration for Deerhide Server (RaspberryPi/Nuc)
 
 ## Overview
@@ -8,6 +9,7 @@ This repository contains Ansible playbooks and roles for managing a multi-host i
 ## Infrastructure Components
 
 ### Hosts
+
 - **melissa**: Main server running web services and monitoring
 - **bunryl**: Storage and development server with MinIO and GPG key management
 - **claudia**: Docker-based development environment
@@ -16,40 +18,55 @@ This repository contains Ansible playbooks and roles for managing a multi-host i
 ### Services Deployed
 
 #### Core Infrastructure
+
 - **Traefik**: Reverse proxy and load balancer for service routing
 - **CoreDNS**: DNS server for internal network resolution
 - **Docker**: Container runtime and orchestration
 - **HAProxy**: High availability load balancer for Kubernetes API servers
 
 #### Storage & Development
+
 - **MinIO**: S3-compatible object storage service
 - **HTTPD**: Web server for serving configuration files and static content
 
 #### Monitoring & Utilities
+
 - **NUT (Network UPS Tools)**: Uninterruptible Power Supply monitoring
 - **Auto-updates**: Automated system updates with Slack notifications
 - **GPG Key Management**: Automated GPG key generation and deployment
 
 #### User Management
+
 - **Deerhide Users**: Centralized user account management across all hosts
 - **Operator Accounts**: Specialized accounts for different team members
 
 ## Quick Start
 
 1. Install Ansible and dependencies:
+
    ```bash
    ./scripts/install_ansible.sh
    ```
 
 2. Configure your environment:
+
    ```bash
    export ANSIBLE_VAULT_PASSWORD_FILE=/path/to/vault/password
    ```
 
 3. Run playbooks:
+
    ```bash
    ./scripts/apply_ansible_on_hosts.sh
    ```
+
+### Documentation
+
+- Must-Know Quick Start: `docs/MUST_KNOW_QUICK_START.md`
+- Adapt and Remix: `docs/ADAPT_AND_REMIX.md`
+- Run on a Machine: `docs/RUN_ON_A_MACHINE.md`
+- Ansible Pull on Target: `docs/ANSIBLE_PULL.md`
+- Ansible Vault: `docs/ANSIBLE_VAULT.md`
 
 ## Project Structure
 
