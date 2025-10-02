@@ -118,7 +118,7 @@ for server in "${SERVERS[@]}"; do
     echo ""
     log_info "Setting up SSH for $server..."
 
-    if ./scripts/setup_ssh_simple.sh -h "$server" -u "$USERNAME" -k "$KEY_FILE"; then
+    if ./scripts/setup_operator.sshkey.by_hosts.sh -h "$server" -u "$USERNAME" -k "$KEY_FILE"; then
         log_success "SSH setup completed for $server"
         ((SUCCESS_COUNT++))
     else
