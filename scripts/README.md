@@ -56,6 +56,7 @@ This directory contains automation scripts for managing the Deerhide infrastruct
 **Purpose:** Configures SSH keys for a user on all infrastructure servers.
 
 **Requirements:**
+- Depends on the `setup_operator_sshkey_by_hosts.sh` script
 - SSH access to servers via `deerhide-operator`
 - Valid public key file
 
