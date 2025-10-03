@@ -2,32 +2,36 @@
 # code: language=ansible
 # Path: ansible/roles/deerhide_users/tasks/generate_host_pgp.yml
 
-- name: Ensure .gnupg exists
+- name: Ensure .gnupg exists for all managed users
   ansible.builtin.file:
-    path: "{{ deerhide_operator_home }}/.gnupg"
+    path: "{{ '/root/.gnupg' if item == 'root' else '/home/' + item + '/.gnupg' }}"
     state: directory
     mode: "0700"
-    owner: deerhide-operator
-    group: "{{ gpg_group | default(omit) }}"
+    owner: "{{ item }}"
+    group: "{{ 'root' if item == 'root' else 'deerhide-operator' }}"
+    recurse: true
   become: true
+  with_items: "{{ managed_users }}"
 
-- name: Deploy gpg.conf
+- name: Deploy gpg.conf for all managed users
   ansible.builtin.template:
     src: "templates/gpg.conf.j2"
-    dest: "{{ deerhide_operator_home }}/.gnupg/gpg.conf"
+    dest: "{{ '/root/.gnupg/gpg.conf' if item == 'root' else '/home/' + item + '/.gnupg/gpg.conf' }}"
     mode: "0600"
-    owner: deerhide-operator
-    group: "{{ gpg_group | default(omit) }}"
+    owner: "{{ item }}"
+    group: "{{ 'root' if item == 'root' else 'deerhide-operator' }}"
   become: true
+  with_items: "{{ managed_users }}"
 
-- name: Deploy gpg-agent.conf
+- name: Deploy gpg-agent.conf for all managed users
   ansible.builtin.template:
     src: "templates/gpg-agent.conf.j2"
-    dest: "{{ deerhide_operator_home }}/.gnupg/gpg-agent.conf"
+    dest: "{{ '/root/.gnupg/gpg-agent.conf' if item == 'root' else '/home/' + item + '/.gnupg/gpg-agent.conf' }}"
     mode: "0600"
-    owner: deerhide-operator
-    group: "{{ gpg_group | default(omit) }}"
+    owner: "{{ item }}"
+    group: "{{ 'root' if item == 'root' else 'deerhide-operator' }}"
   become: true
+  with_items: "{{ managed_users }}"
 
 - name: Deploy gen-key-script
   ansible.builtin.template:
@@ -74,3 +78,13 @@
     creates: "/opt/operator/host-gpg"
   register: host_gpg_key
   changed_when: host_gpg_key.rc == 0
+
+- name: Fix GPG file permissions after key generation
+  ansible.builtin.file:
+    path: "{{ deerhide_operator_home }}/.gnupg"
+    state: directory
+    mode: "0700"
+    owner: deerhide-operator
+    group: deerhide-operator
+    recurse: true
+  become: true
