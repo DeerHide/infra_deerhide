@@ -78,15 +78,14 @@ fi
 # List of servers
 # Add more servers if needed in the list below
 SERVERS=(
-    "192.168.60.188" # melissa
-    "192.168.60.59" # claudia
-    "192.168.60.115" # helene
-    "192.168.60.93" # giustina
-    "192.168.60.220" # elise
-    "192.168.60.121" # sibylle
-    "192.168.60.58" # marion
-    "192.168.60.200" # marlene
-    "192.168.3.220" # bunryl
+    "melissa"
+    "claudia"
+    "helene"
+    "giustina"
+    "elise"
+    "sibylle"
+    "marion"
+    "marlene"
 )
 
 # Show what we're going to do
@@ -114,18 +113,28 @@ fi
 SUCCESS_COUNT=0
 FAILED_COUNT=0
 
+# Disable exit on error for the entire loop
+set +e
+
 for server in "${SERVERS[@]}"; do
     echo ""
     log_info "Setting up SSH for $server..."
 
-    if ./scripts/setup_operator_sshkey_by_hosts.sh -h "$server" -u "$USERNAME" -k "$KEY_FILE"; then
+    # Use the original script with automatic confirmation
+    printf "y\n" | ./scripts/setup_operator_sshkey_by_hosts.sh -h "$server" -u "$USERNAME" -k "$KEY_FILE"
+    exit_code=$?
+
+    if [[ $exit_code -eq 0 ]]; then
         log_success "SSH setup completed for $server"
         ((SUCCESS_COUNT++))
     else
-        log_error "SSH setup failed for $server"
+        log_error "SSH setup failed for $server (exit code: $exit_code)"
         ((FAILED_COUNT++))
     fi
 done
+
+# Re-enable exit on error
+set -e
 
 # Summary
 echo ""
