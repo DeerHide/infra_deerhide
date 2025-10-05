@@ -105,20 +105,16 @@ if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
     exit 0
 fi
 
-# Execute commands
-log_info "Creating .ssh directory..."
-ssh deerhide-operator@$HOSTNAME "sudo mkdir -p /home/$FULL_USERNAME/.ssh"
-
-log_info "Setting permissions..."
-ssh deerhide-operator@$HOSTNAME "sudo chown $FULL_USERNAME:deerhide-operator /home/$FULL_USERNAME/.ssh"
-ssh deerhide-operator@$HOSTNAME "sudo chmod 700 /home/$FULL_USERNAME/.ssh"
-
-log_info "Adding public key to authorized_keys..."
-ssh deerhide-operator@$HOSTNAME "echo '$PUBLIC_KEY' | sudo tee -a /home/$FULL_USERNAME/.ssh/authorized_keys > /dev/null"
-
-log_info "Setting authorized_keys permissions..."
-ssh deerhide-operator@$HOSTNAME "sudo chown $FULL_USERNAME:deerhide-operator /home/$FULL_USERNAME/.ssh/authorized_keys"
-ssh deerhide-operator@$HOSTNAME "sudo chmod 600 /home/$FULL_USERNAME/.ssh/authorized_keys"
+# Execute commands in a single SSH call
+log_info "Setting up SSH directory and permissions..."
+ssh deerhide-operator@$HOSTNAME 'bash -s' << EOF
+    sudo mkdir -p /home/$FULL_USERNAME/.ssh
+    sudo chown $FULL_USERNAME:deerhide-operator /home/$FULL_USERNAME/.ssh
+    sudo chmod 700 /home/$FULL_USERNAME/.ssh
+    echo '$PUBLIC_KEY' | sudo tee -a /home/$FULL_USERNAME/.ssh/authorized_keys > /dev/null
+    sudo chown $FULL_USERNAME:deerhide-operator /home/$FULL_USERNAME/.ssh/authorized_keys
+    sudo chmod 600 /home/$FULL_USERNAME/.ssh/authorized_keys
+EOF
 
 log_success "SSH setup completed for $FULL_USERNAME"
 echo ""
