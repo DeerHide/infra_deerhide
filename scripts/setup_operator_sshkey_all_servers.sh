@@ -208,29 +208,29 @@ fi
 
 # Groups of servers by site/location
 CLB_HOSTS=(
-    "melissa"
-    "claudia"
-    "helene"
-    "giustina"
-    "elise"
-    "sibylle"
-    "marion"
-    "marlene"
-    "melanie"
+    "melissa.clb.deerhide.run"
+    "claudia.clb.deerhide.run"
+    "helene.clb.deerhide.run"
+    "giustina.clb.deerhide.run"
+    "elise.clb.deerhide.run"
+    "sibylle.clb.deerhide.run"
+    "marion.clb.deerhide.run"
+    "marlene.clb.deerhide.run"
+    "melanie.clb.deerhide.run"
 )
 
 PRG_HOSTS=(
-    "maria"
-    "caroline"
-    "lisa"
-    "ashley"
-    "miranda"
-    "lucile"
-    "ludivine"
+    "maria.prg.deerhide.run"
+    "caroline.prg.deerhide.run"
+    "lisa.prg.deerhide.run"
+    "ashley.prg.deerhide.run"
+    "miranda.prg.deerhide.run"
+    "lucile.prg.deerhide.run"
+    "ludivine.prg.deerhide.run"
 )
 
 LUZ_HOSTS=(
-    "sayuri"
+    "sayuri.luz.deerhide.run"
 )
 
 # Interactive selection
