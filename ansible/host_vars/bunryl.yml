@@ -17,3 +17,10 @@ gpg_group: null
 traefik_host: "traefik.bunryl.deerhide.run"
 minio_host: "minio.bunryl.deerhide.run"
 minio_console_host: "console-minio.bunryl.deerhide.run"
+
+# It's a specific file for bunryl(NAS) for the moment
+# Traefik file provider configuration
+traefik_file_provider_config: |
+  file:
+    directory: /etc/traefik/dynamic/
+    watch: true

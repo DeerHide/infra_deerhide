@@ -17,9 +17,9 @@ certificatesResolvers:
 # Docker configuration backend
 providers:
   docker: {}
-  file:
-    directory: /etc/traefik/dynamic/
-    watch: true
+{% if traefik_file_provider_config is defined and traefik_file_provider_config.strip() != "" %}
+  {{ traefik_file_provider_config | indent(2) }}
+{% endif %}
 
 # API and dashboard configuration
 api:
