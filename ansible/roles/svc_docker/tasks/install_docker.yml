@@ -19,7 +19,7 @@
 
 - name: Create the keyrings directory
   ansible.builtin.file:
-    path: /etc/atp/keyrings
+    path: /etc/apt/keyrings
     state: directory
     mode: '0755'
   become: true
