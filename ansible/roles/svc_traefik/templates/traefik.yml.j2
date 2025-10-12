@@ -14,7 +14,7 @@ certificatesResolvers:
         provider: cloudflare
         delayBeforeCheck: 0
 
-# Docker configuration backend
+# Traefik dynamic configuration when needed/defined (otherwise handled with containers' labels)
 providers:
   docker: {}
 {% if traefik_file_provider_config is defined and traefik_file_provider_config.strip() != "" %}
