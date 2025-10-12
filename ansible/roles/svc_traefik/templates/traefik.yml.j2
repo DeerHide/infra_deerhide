@@ -14,12 +14,12 @@ certificatesResolvers:
         provider: cloudflare
         delayBeforeCheck: 0
 
-# Docker configuration backend
+# Traefik dynamic configuration when needed/defined (otherwise handled with containers' labels)
 providers:
   docker: {}
-  file:
-    directory: /etc/traefik/dynamic/
-    watch: true
+{% if traefik_file_provider_config is defined and traefik_file_provider_config.strip() != "" %}
+  {{ traefik_file_provider_config | indent(2) }}
+{% endif %}
 
 # API and dashboard configuration
 api:
