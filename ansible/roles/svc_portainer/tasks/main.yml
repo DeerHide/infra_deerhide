@@ -1,0 +1,7 @@
+---
+# code: language=ansible
+
+# Setup Portainer
+
+- name: Include tasks from setup_portainer.yml
+  ansible.builtin.include_tasks: setup_portainer.yml
