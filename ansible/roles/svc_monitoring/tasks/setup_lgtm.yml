@@ -1,0 +1,72 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_lgtm/tasks/setup_lgtm.yml
+# This file contains the tasks to setup the Docker container for LGTM - Loki Grafana Tempo Prometheus
+
+- name: Pull lgtm image
+  community.docker.docker_image_pull:
+    name: "{{ lgtm_docker_image_name }}"
+    tag: "{{ lgtm_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_registry_hostname }}"
+  become: true
+
+- name: Create directory for lgtm
+  ansible.builtin.file:
+    name: "{{ lgtm_data_dir }}"
+    state: directory
+    mode: "777"
+    recurse: true
+  become: true
+
+- name: Create docker_volume for lgtm data
+  community.docker.docker_volume:
+    name: "{{ lgtm_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ lgtm_data_dir }}"
+    state: present
+  become: true
+
+- name: Create a lgtm container
+  community.docker.docker_container:
+    name: svc_lgtm
+    image: "{{ lgtm_docker_image_name }}:{{ lgtm_docker_image_version }}"
+    state: started
+    restart_policy: always
+    ports:
+      - "{{ lgtm_port_A }}:{{ lgtm_port_A }}"
+      - "{{ lgtm_port_B }}:{{ lgtm_port_B }}"
+      - "{{ lgtm_port_C }}:{{ lgtm_port_C }}"
+    volumes:
+      - "{{ lgtm_data_dir }}:/data"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.svc_lgtm.rule: "Host(`{{ lgtm_host }}`)"
+      traefik.http.routers.svc_lgtm.tls: "true"
+      traefik.http.routers.svc_lgtm.tls.certresolver: "cloudflare"
+      traefik.http.routers.svc_lgtm.entrypoints: "websecure"
+      traefik.http.routers.svc_lgtm.service: "svc_lgtm_service"
+      traefik.http.services.svc_lgtm_service.loadbalancer.server.port: "{{ lgtm_port_A }}"
+      # Redirection HTTP vers HTTPS
+      traefik.http.routers.svc_lgtm_http.rule: "Host(`{{ lgtm_host }}`)"
+      traefik.http.routers.svc_lgtm_http.entrypoints: "web"
+      traefik.http.routers.svc_lgtm_http.middlewares: "redirect-to-https"
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+    healthcheck:
+      # Check if lgtm web server is accessible on port lgtm_port (allow any response)
+      test:
+        [
+          "CMD-SHELL",
+          "curl --fail --silent --show-error http://localhost:{{ lgtm_port_A }}/ || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    recreate: true
+  become: true
