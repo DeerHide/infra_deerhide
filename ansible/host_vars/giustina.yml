@@ -2,17 +2,19 @@
 # code: language=ansible
 # Path: ansible/host_vars/giustina.yml
 # This file contains the variables for the giustina host
+
 # Variables for the DNS hostnames
 traefik_host: "traefik.giustina.deerhide.run"
 lgtm_host: "grafana.giustina.deerhide.run"
 portainer_host: "portainer.giustina.deerhide.run"
-dex_issuer: "https://dex.clb.deerhide.run/dex"
+dex_host: "dex.clb.deerhide.run"
 
+# Variables for the Dex service
+dex_issuer: "https://dex.clb.deerhide.run/dex"
 dex_github_client_id: "{{ dex_clb_github_client_id }}"
 dex_github_client_secret: "{{ dex_clb_github_client_secret }}"
-
 dex_portainer_secret: "{{ dex_clb_portainer_secret }}"
-dex_host: "dex.clb.deerhide.run"
+
 dex_clients:
   - id: portainer
     redirectURIs:
