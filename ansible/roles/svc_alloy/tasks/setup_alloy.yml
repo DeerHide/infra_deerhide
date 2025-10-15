@@ -50,7 +50,7 @@
     ports:
       - "{{ alloy_port }}:{{ alloy_port }}"
     volumes:
-      - "{{ alloy_data_dir }}/config.alloy:/etc/alloy/config.alloy:ro"
+      - "{{ alloy_docker_volume_name }}/config.alloy:/etc/alloy/config.alloy:ro"
       - "/var/run/docker.sock:/var/run/docker.sock"
     labels:
       traefik.enable: "true"

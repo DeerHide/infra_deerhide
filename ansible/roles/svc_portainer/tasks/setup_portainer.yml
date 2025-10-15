@@ -43,7 +43,7 @@
       - "{{ portainer_port_https }}:{{ portainer_port_https }}"
       - "{{ portainer_port_tcp }}:{{ portainer_port_tcp }}"
     volumes:
-      - "{{ portainer_data_dir }}:/.data"
+      - "{{ portainer_docker_volume_name }}:/.data"
       - "/var/run/docker.sock:/var/run/docker.sock"
     labels:
       traefik.enable: "true"

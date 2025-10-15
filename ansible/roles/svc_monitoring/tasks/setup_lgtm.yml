@@ -46,7 +46,7 @@
       - "{{ prometheus_port }}:{{ prometheus_port }}"
       - "{{ loki_port }}:{{ loki_port }}"
     volumes:
-      - "{{ lgtm_data_dir }}/data:/data"
+      - "{{ lgtm_docker_volume_name }}/data:/data"
     labels:
       traefik.enable: "true"
       traefik.http.routers.svc_lgtm.rule: "Host(`{{ lgtm_host }}`)"
