@@ -39,9 +39,9 @@
     state: started
     restart_policy: always
     ports:
-      - "{{ portainer_port_A }}:{{ portainer_port_A }}"
-      - "{{ portainer_port_B }}:{{ portainer_port_B }}"
-      - "{{ portainer_port_C }}:{{ portainer_port_C }}"
+      - "{{ portainer_port_http }}:{{ portainer_port_http }}"
+      - "{{ portainer_port_https }}:{{ portainer_port_https }}"
+      - "{{ portainer_port_tcp }}:{{ portainer_port_tcp }}"
     volumes:
       - "{{ portainer_data_dir }}:/.data"
       - "/var/run/docker.sock:/var/run/docker.sock"
@@ -52,7 +52,7 @@
       traefik.http.routers.svc_portainer.tls.certresolver: "cloudflare"
       traefik.http.routers.svc_portainer.entrypoints: "websecure"
       traefik.http.routers.svc_portainer.service: "svc_portainer_service"
-      traefik.http.services.svc_portainer_service.loadbalancer.server.port: "{{ portainer_port_A }}"
+      traefik.http.services.svc_portainer_service.loadbalancer.server.port: "{{ portainer_port_http }}"
       # Redirection HTTP vers HTTPS
       traefik.http.routers.svc_portainer_http.rule: "Host(`{{ portainer_host }}`)"
       traefik.http.routers.svc_portainer_http.entrypoints: "web"

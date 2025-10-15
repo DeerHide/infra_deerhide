@@ -41,8 +41,8 @@
     restart_policy: always
     ports:
       - "{{ grafana_port }}:{{ grafana_port }}"
-      - "{{ tempo_port_1 }}:{{ tempo_port_1 }}"
-      - "{{ tempo_port_2 }}:{{ tempo_port_2 }}"
+      - "{{ tempo_port_grpc }}:{{ tempo_port_grpc }}"
+      - "{{ tempo_port_http }}:{{ tempo_port_http }}"
       - "{{ prometheus_port }}:{{ prometheus_port }}"
       - "{{ loki_port }}:{{ loki_port }}"
     volumes:

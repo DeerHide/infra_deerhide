@@ -10,8 +10,8 @@ lgtm_docker_image_name: grafana/otel-lgtm
 lgtm_docker_image_version: latest
 lgtm_docker_volume_name: svc_lgtm_data_volume
 grafana_port: "3000"
-tempo_port_1: "4317"
-tempo_port_2: "4318"
+tempo_port_grpc: "4317"
+tempo_port_http: "4318"
 prometheus_port: "9090"
 loki_port: "3100"
 

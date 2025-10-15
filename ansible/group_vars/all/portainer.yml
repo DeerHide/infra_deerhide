@@ -8,6 +8,6 @@ portainer_data_dir: "{{ docker_volumes_dir }}/{{ portainer_data_dir_name }}"
 portainer_docker_image_name: portainer/portainer-ce
 portainer_docker_image_version: latest
 portainer_docker_volume_name: svc_portainer_data_volume
-portainer_port_A: "9000"
-portainer_port_B: "9443"
-portainer_port_C: "8000"
+portainer_port_http: "9000"
+portainer_port_https: "9443"
+portainer_port_tcp: "8000"
