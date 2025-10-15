@@ -1,14 +1,24 @@
 ---
 # code: language=ansible
-# Path: ansible/group_vars/all/lgtm.yml
-# This file contains the variables for the OTEl LGTM service
-# Open Telemetry - Loki Grafana Tempo Prometheus
+# Path: ansible/group_vars/all/monitoring.yml
+# This file contains the variables for the monitoring service
 
+# Variables for the Open Telemetry - Loki Grafana Tempo Prometheus
 lgtm_data_dir_name: svc_lgtm_data
 lgtm_data_dir: "{{ docker_volumes_dir }}/{{ lgtm_data_dir_name }}"
 lgtm_docker_image_name: grafana/otel-lgtm
 lgtm_docker_image_version: latest
 lgtm_docker_volume_name: svc_lgtm_data_volume
-lgtm_port_A: "3000"
-lgtm_port_B: "4317"
-lgtm_port_C: "4318"
+grafana_port: "3000"
+tempo_port_1: "4317"
+tempo_port_2: "4318"
+prometheus_port: "9090"
+loki_port: "3100"
+
+# Variables for the Alloy
+alloy_data_dir_name: svc_alloy_data
+alloy_data_dir: "{{ docker_volumes_dir }}/{{ alloy_data_dir_name }}"
+alloy_docker_image_name: grafana/alloy
+alloy_docker_image_version: latest
+alloy_docker_volume_name: svc_alloy_data_volume
+alloy_port: "12345"
