@@ -1,0 +1,9 @@
+---
+# code: language=ansible
+
+- name: Include tasks from configure.yml
+  ansible.builtin.include_tasks: configure.yml
+
+# Include tasks from docker.yml
+- name: Include tasks from docker.yml
+  ansible.builtin.include_tasks: docker.yml

@@ -1,0 +1,43 @@
+---
+# code: language=ansible
+
+- name: Pull dex image
+  community.docker.docker_image_pull:
+    name: "{{ dex_docker_image_name }}"
+    tag: "{{ dex_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_registry_hostname }}"
+  become: true
+
+- name: Create docker_volume for Dex data
+  community.docker.docker_volume:
+    name: "{{ dex_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ dex_data_dir }}"
+    state: present
+  become: true
+
+- name: Create a Dex container
+  community.docker.docker_container:
+    name: svc_dex
+    image: "{{ dex_docker_image_name }}:{{ dex_docker_image_version }}"
+    state: started
+    restart_policy: always
+    command: ["dex", "serve", "/data/config.yaml"]
+    volumes:
+      - "{{ dex_docker_volume_name }}:/data"
+    log_driver: "json-file"
+    recreate: true
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.svc_dex.rule: "Host(`{{ dex_host }}`)"
+      traefik.http.routers.svc_dex.service: "svc_dex_service"
+      traefik.http.services.svc_dex_service.loadbalancer.server.port: "5556"
+      traefik.http.routers.svc_dex.tls: "true"
+      traefik.http.routers.svc_dex.tls.certresolver: "cloudflare"
+  become: true

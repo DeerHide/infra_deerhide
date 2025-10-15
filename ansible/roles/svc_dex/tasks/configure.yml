@@ -1,0 +1,20 @@
+---
+# code: language=ansible
+
+- name: Create Directory for Dex Config Volume
+  ansible.builtin.file:
+    path: "{{ dex_data_dir }}"
+    state: directory
+    mode: "755"
+    owner: deerhide-operator
+    group: deerhide-operator
+  become: true
+
+- name: Create Dex Config File
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "{{ dex_data_dir }}/config.yaml"
+    mode: "644"
+    owner: deerhide-operator
+    group: deerhide-operator
+  become: true
