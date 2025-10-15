@@ -1,0 +1,69 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_alloy/tasks/setup_alloy.yml
+# This file contains the tasks to setup the Docker container for alloy
+# All variables are defined in ansible/group_vars/all/monitoring.yml:16-22
+
+- name: Pull alloy image
+  community.docker.docker_image_pull:
+    name: "{{ alloy_docker_image_name }}"
+    tag: "{{ alloy_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_registry_hostname }}"
+  become: true
+
+- name: Create directory for alloy
+  ansible.builtin.file:
+    name: "{{ alloy_data_dir }}"
+    state: directory
+    mode: "777"
+    recurse: true
+  become: true
+
+- name: Create docker_volume for alloy data
+  community.docker.docker_volume:
+    name: "{{ alloy_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ alloy_data_dir }}"
+    state: present
+  become: true
+
+- name: Deploy alloy configuration
+  ansible.builtin.template:
+    src: config.alloy.j2
+    dest: "{{ alloy_data_dir }}/config.alloy"
+    mode: "600"
+  become: true
+
+- name: Create a alloy container
+  community.docker.docker_container:
+    name: svc_alloy
+    image: "{{ alloy_docker_image_name }}:{{ alloy_docker_image_version }}"
+    state: started
+    restart_policy: always
+    command: run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+    ports:
+      - "{{ alloy_port }}:{{ alloy_port }}"
+    volumes:
+      - "{{ alloy_data_dir }}/config.alloy:/etc/alloy/config.alloy:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.svc_alloy.rule: "Host(`{{ alloy_host }}`)"
+      traefik.http.routers.svc_alloy.tls: "true"
+      traefik.http.routers.svc_alloy.tls.certresolver: "cloudflare"
+      traefik.http.routers.svc_alloy.entrypoints: "websecure"
+      traefik.http.routers.svc_alloy.service: "svc_alloy_service"
+      traefik.http.services.svc_alloy_service.loadbalancer.server.port: "{{ alloy_port }}"
+      # Redirection HTTP vers HTTPS
+      traefik.http.routers.svc_alloy_http.rule: "Host(`{{ alloy_host }}`)"
+      traefik.http.routers.svc_alloy_http.entrypoints: "web"
+      traefik.http.routers.svc_alloy_http.middlewares: "redirect-to-https"
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+    recreate: true
+  become: true

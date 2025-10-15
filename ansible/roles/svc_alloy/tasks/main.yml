@@ -1,0 +1,7 @@
+---
+# code: language=ansible
+
+# Setup Alloy
+
+- name: Include tasks from setup_alloy.yml
+  ansible.builtin.include_tasks: setup_alloy.yml
