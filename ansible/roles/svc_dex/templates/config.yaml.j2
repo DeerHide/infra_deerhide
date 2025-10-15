@@ -1,0 +1,51 @@
+
+issuer: {{ dex_issuer }}
+
+web:
+  http: 0.0.0.0:5556
+
+storage:
+  type: sqlite3
+  config:
+    path: /data/dex.db
+
+telemetry:
+  http: {{ dex_telemetry_http }}
+
+expiry:
+  deviceRequest: {{ dex_expiry_deviceRequest }}
+  signingKeys: {{ dex_expiry_signingKeys }}
+  idTokens: {{ dex_expiry_idTokens }}
+  refreshTokens:
+    reuseInterval: {{ dex_expiry_refreshTokens_reuseInterval }}
+    validIfNotUsedFor: {{ dex_expiry_refreshTokens_validIfNotUsedFor }}
+    absoluteLifetime: {{ dex_expiry_refreshTokens_absoluteLifetime }}
+
+logger:
+  level: {{ dex_logger_level }}
+  format: {{ dex_logger_format }}
+
+staticClients:
+  - id: portainer
+    redirectURIs:
+      - https://portainer.giustina.deerhide.run/
+    name: Portainer
+    secret: {{ dex_portainer_secret }}
+
+connectors:
+  - type: github
+    id: github
+    name: GitHub / Deerhide
+    config:
+      clientID: {{ dex_github_client_id }}
+      clientSecret: {{ dex_github_client_secret }}
+      redirectURI: https://{{ dex_host }}/dex/callback
+      orgs:
+        - name: DeerHide
+          teams:
+            - Maintainers
+    loadAllGroups: false
+    teamNameField: slug
+    preferredEmailDomain: "deerhide.run"
+
+enablePasswordDB: false
