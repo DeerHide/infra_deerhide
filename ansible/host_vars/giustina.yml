@@ -7,6 +7,7 @@
 traefik_host: "traefik.giustina.deerhide.run"
 lgtm_host: "grafana.giustina.deerhide.run"
 portainer_host: "portainer.giustina.deerhide.run"
+alloy_host: "alloy.giustina.deerhide.run"
 dex_host: "dex.clb.deerhide.run"
 
 # Variables for the Dex service
