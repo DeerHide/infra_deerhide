@@ -39,18 +39,46 @@ for host in "${HOSTS[@]}"; do
   fi
 done
 
-# Prompt user to select a playbook
-echo "Which playbook do you want to run?"
-select PB_DESC in "${PLAYBOOKS[@]}"; do
-  if [[ -n "$PB_DESC" ]]; then
-    # Extract the playbook path (before the first space)
-    PB_PATH=$(echo "$PB_DESC" | awk '{print $1}')
-    echo "You selected: $PB_PATH"
-    break
+# Detect if an argument is passed and use as PB_DESC
+if [[ -n "$1" ]]; then
+  # Check if the argument is a number (menu selection)
+  if [[ "$1" =~ ^[0-9]+$ ]]; then
+    # It's a numeric selection, treat it as a menu choice
+    SELECTION_NUM=$1
+    if [[ $SELECTION_NUM -ge 1 && $SELECTION_NUM -le ${#PLAYBOOKS[@]} ]]; then
+      PB_DESC="${PLAYBOOKS[$((SELECTION_NUM-1))]}"
+      PB_PATH=$(echo "$PB_DESC" | awk '{print $1}')
+      echo "You selected: $PB_PATH"
+    else
+      echo "Invalid selection number: $SELECTION_NUM. Please choose between 1 and ${#PLAYBOOKS[@]}"
+      exit 1
+    fi
   else
-    echo "Invalid choice. Please select a valid playbook."
+    # It's a direct playbook path or description
+    PB_DESC="$1"
+    PB_PATH=$(echo "$PB_DESC" | awk '{print $1}')
+
+    if [[ -f "$PB_PATH" ]]; then
+      echo "You selected: $PB_PATH"
+    else
+      echo "Playbook not found: $PB_PATH"
+      exit 1
+    fi
   fi
-done
+else
+  # Prompt user to select a playbook
+  echo "Which playbook do you want to run?"
+  select PB_DESC in "${PLAYBOOKS[@]}"; do
+    if [[ -n "$PB_DESC" ]]; then
+      # Extract the playbook path (before the first space)
+      PB_PATH=$(echo "$PB_DESC" | awk '{print $1}')
+      echo "You selected: $PB_PATH"
+      break
+    else
+      echo "Invalid choice. Please select a valid playbook."
+    fi
+  done
+fi
 
 ansible-playbook \
     -i ${ANSIBLE_INVENTORY} \
