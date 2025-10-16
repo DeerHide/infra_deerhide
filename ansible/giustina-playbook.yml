@@ -7,5 +7,5 @@
   roles:
     - role: svc_traefik
     - role: svc_portainer
-    - role: svc_monitoring
+    - role: svc_lgtm
     - role: svc_dex
