@@ -1,0 +1,16 @@
+---
+# code: language=ansible
+# Path: ansible/group_vars/all/lgtm.yml
+# This file contains the variables for the LGTM service
+
+# Variables for the Open Telemetry - Loki Grafana Tempo Prometheus
+lgtm_data_dir_name: svc_lgtm_data
+lgtm_data_dir: "{{ docker_volumes_dir }}/{{ lgtm_data_dir_name }}"
+lgtm_docker_image_name: grafana/otel-lgtm
+lgtm_docker_image_version: latest
+lgtm_docker_volume_name: svc_lgtm_data_volume
+lgtm_grafana_port: "3000"
+lgtm_tempo_grpc_port: "4317"
+lgtm_tempo_http_port: "4318"
+lgtm_prometheus_port: "9090"
+lgtm_loki_port: "3100"
