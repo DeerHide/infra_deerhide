@@ -40,11 +40,11 @@
     state: started
     restart_policy: always
     ports:
-      - "{{ grafana_port }}:{{ grafana_port }}"
-      - "{{ tempo_port_grpc }}:{{ tempo_port_grpc }}"
-      - "{{ tempo_port_http }}:{{ tempo_port_http }}"
-      - "{{ prometheus_port }}:{{ prometheus_port }}"
-      - "{{ loki_port }}:{{ loki_port }}"
+      - "{{ lgtm_grafana_port }}:{{ lgtm_grafana_port }}"
+      - "{{ lgtm_tempo_grpc_port }}:{{ lgtm_tempo_grpc_port }}"
+      - "{{ lgtm_tempo_http_port }}:{{ lgtm_tempo_http_port }}"
+      - "{{ lgtm_prometheus_port }}:{{ lgtm_prometheus_port }}"
+      - "{{ lgtm_loki_port }}:{{ lgtm_loki_port }}"
     volumes:
       - "{{ lgtm_docker_volume_name }}/data:/data"
     labels:
@@ -54,7 +54,7 @@
       traefik.http.routers.svc_lgtm.tls.certresolver: "cloudflare"
       traefik.http.routers.svc_lgtm.entrypoints: "websecure"
       traefik.http.routers.svc_lgtm.service: "svc_lgtm_service"
-      traefik.http.services.svc_lgtm_service.loadbalancer.server.port: "{{ grafana_port }}"
+      traefik.http.services.svc_lgtm_service.loadbalancer.server.port: "{{ lgtm_grafana_port }}"
       # Redirection HTTP vers HTTPS
       traefik.http.routers.svc_lgtm_http.rule: "Host(`{{ lgtm_host }}`)"
       traefik.http.routers.svc_lgtm_http.entrypoints: "web"
