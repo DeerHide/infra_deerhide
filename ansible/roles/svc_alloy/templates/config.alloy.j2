@@ -39,10 +39,10 @@ loki.source.docker "default" {
 
 otelcol.receiver.otlp "default" {
   grpc {
-    endpoint = "0.0.0.0:4317"
+    endpoint = "0.0.0.0:{{ lgtm_tempo_grpc_port }}"
   }
   http {
-    endpoint = "0.0.0.0:4318"
+    endpoint = "0.0.0.0:{{ lgtm_tempo_http_port }}"
   }
   output {
     metrics = [otelcol.processor.batch.default.input]
@@ -65,7 +65,7 @@ otelcol.exporter.prometheus "default" {
 
 prometheus.remote_write "default" {
   endpoint {
-    url = "http://giustina.clb.deerhide.run:{{ prometheus_port }}/api/v1/write"
+    url = "http://giustina.clb.deerhide.run:{{ lgtm_prometheus_port }}/api/v1/write"
   }
 }
 
@@ -75,12 +75,12 @@ otelcol.exporter.loki "default" {
 
 loki.write "default" {
   endpoint {
-    url = "http://giustina.clb.deerhide.run:{{ loki_port }}/loki/api/v1/push"
+    url = "http://giustina.clb.deerhide.run:{{ lgtm_loki_port }}/loki/api/v1/push"
   }
 }
 
 otelcol.exporter.otlp "default" {
   client {
-    endpoint = "giustina.clb.deerhide.run:{{ tempo_port_1 }}"
+    endpoint = "giustina.clb.deerhide.run:{{ lgtm_tempo_grpc_port }}"
   }
 }
