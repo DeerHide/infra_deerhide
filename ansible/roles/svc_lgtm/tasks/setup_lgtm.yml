@@ -65,7 +65,7 @@
       test:
         [
           "CMD-SHELL",
-          "curl --fail --silent --show-error http://localhost:{{ grafana_port }}/ || exit 1",
+          "curl --fail --silent --show-error http://localhost:{{ lgtm_grafana_port }}/ || exit 1",
         ]
       interval: 30s
       timeout: 10s
