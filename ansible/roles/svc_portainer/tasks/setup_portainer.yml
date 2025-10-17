@@ -39,7 +39,7 @@
     state: started
     restart_policy: always
     volumes:
-      - "{{ portainer_docker_volume_name }}:/.data"
+      - "{{ portainer_docker_volume_name }}:/data"
       - "/var/run/docker.sock:/var/run/docker.sock"
     labels:
       traefik.enable: "true"
