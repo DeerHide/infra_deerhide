@@ -63,5 +63,19 @@
       traefik.http.routers.svc_alloy_http.entrypoints: "web"
       traefik.http.routers.svc_alloy_http.middlewares: "redirect-to-https"
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - |
+          bash -c '
+          exec 42<>/dev/tcp/localhost/12345;
+          echo -e "GET /-/healthy HTTP/1.1\nHost: localhost\nConnection: close\n\n" >&42;
+          head -1 <&42 | cut -d" " -f2 | grep -q "^200$" || exit 1;
+          exec 42<&-;
+          exec 42>&-'
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     recreate: true
   become: true
