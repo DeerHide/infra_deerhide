@@ -13,3 +13,9 @@ dex_github_client_secret: "{{ dex_clb_github_client_secret }}"
 
 dex_portainer_secret: "{{ dex_clb_portainer_secret }}"
 dex_host: "dex.clb.deerhide.run"
+dex_clients:
+  - id: portainer
+    redirectURIs:
+      - https://portainer.giustina.deerhide.run/
+    name: Portainer
+    secret: "{{ dex_portainer_secret }}"

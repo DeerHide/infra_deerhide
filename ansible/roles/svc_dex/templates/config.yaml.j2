@@ -26,11 +26,15 @@ logger:
   format: {{ dex_logger_format }}
 
 staticClients:
-  - id: portainer
+{% for client in dex_clients %}
+  - id: {{ client.id }}
     redirectURIs:
-      - https://portainer.giustina.deerhide.run/
-    name: Portainer
-    secret: {{ dex_portainer_secret }}
+{% for redirectURI in client.redirectURIs %}
+      - {{ redirectURI }}
+{% endfor %}
+    name: {{ client.name }}
+    secret: {{ client.secret }}
+{% endfor %}
 
 connectors:
   - type: github
