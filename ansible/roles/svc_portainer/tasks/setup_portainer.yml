@@ -1,0 +1,58 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_portainer/tasks/setup_portainer.yml
+# This file contains the tasks to setup the Docker container for portainer
+
+- name: Pull portainer image
+  community.docker.docker_image_pull:
+    name: "{{ portainer_docker_image_name }}"
+    tag: "{{ portainer_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_registry_hostname }}"
+  become: true
+
+- name: Create directory for portainer
+  ansible.builtin.file:
+    name: "{{ portainer_data_dir }}"
+    state: directory
+    mode: "777"
+    recurse: true
+  become: true
+
+- name: Create docker_volume for portainer data
+  community.docker.docker_volume:
+    name: "{{ portainer_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ portainer_data_dir }}"
+    state: present
+  become: true
+
+- name: Create a portainer container
+  community.docker.docker_container:
+    name: svc_portainer
+    image: "{{ portainer_docker_image_name }}:{{ portainer_docker_image_version }}"
+    state: started
+    restart_policy: always
+    volumes:
+      - "{{ portainer_docker_volume_name }}:/data"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.svc_portainer.rule: "Host(`{{ portainer_host }}`)"
+      traefik.http.routers.svc_portainer.tls: "true"
+      traefik.http.routers.svc_portainer.tls.certresolver: "cloudflare"
+      traefik.http.routers.svc_portainer.entrypoints: "websecure"
+      traefik.http.routers.svc_portainer.service: "svc_portainer_service"
+      traefik.http.services.svc_portainer_service.loadbalancer.server.port: "{{ portainer_port_http }}"
+      # Redirection HTTP vers HTTPS
+      traefik.http.routers.svc_portainer_http.rule: "Host(`{{ portainer_host }}`)"
+      traefik.http.routers.svc_portainer_http.entrypoints: "web"
+      traefik.http.routers.svc_portainer_http.middlewares: "redirect-to-https"
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+    recreate: true
+  become: true

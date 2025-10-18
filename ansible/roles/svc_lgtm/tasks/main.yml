@@ -1,0 +1,7 @@
+---
+# code: language=ansible
+
+# Setup LGTM - Loki Grafana Tempo Prometheus
+
+- name: Include tasks from setup_lgtm.yml
+  ansible.builtin.include_tasks: setup_lgtm.yml

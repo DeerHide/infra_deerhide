@@ -1,0 +1,86 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+prometheus.exporter.cadvisor "default" {
+  docker_host = "unix:///var/run/docker.sock"
+
+  storage_duration = "5m"
+}
+
+// Configure a prometheus.scrape component to collect cadvisor metrics.
+prometheus.scrape "cadvisor" {
+  targets    = prometheus.exporter.cadvisor.default.targets
+  forward_to = [ prometheus.remote_write.default.receiver ]
+}
+
+discovery.docker "default" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "logs_integrations_docker" {
+  targets = []
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex = "/(.*)"
+    target_label = "service_name"
+  }
+}
+
+loki.source.docker "default" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.default.targets
+  labels     = {"platform" = "docker", "host" = "{{ ansible_hostname }}"}
+  relabel_rules    = discovery.relabel.logs_integrations_docker.rules
+  forward_to = [loki.write.default.receiver]
+}
+
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:{{ lgtm_tempo_grpc_port }}"
+  }
+  http {
+    endpoint = "0.0.0.0:{{ lgtm_tempo_http_port }}"
+  }
+  output {
+    metrics = [otelcol.processor.batch.default.input]
+    logs    = [otelcol.processor.batch.default.input]
+    traces  = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  output {
+    metrics = [otelcol.exporter.prometheus.default.input]
+    logs    = [otelcol.exporter.loki.default.input]
+    traces  = [otelcol.exporter.otlp.default.input]
+  }
+}
+
+otelcol.exporter.prometheus "default" {
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://giustina.clb.deerhide.run:{{ lgtm_prometheus_port }}/api/v1/write"
+  }
+}
+
+otelcol.exporter.loki "default" {
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://giustina.clb.deerhide.run:{{ lgtm_loki_port }}/loki/api/v1/push"
+  }
+}
+
+otelcol.exporter.otlp "default" {
+  client {
+    endpoint = "giustina.clb.deerhide.run:{{ lgtm_tempo_grpc_port }}"
+  }
+}

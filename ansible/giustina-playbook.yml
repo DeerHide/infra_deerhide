@@ -1,10 +1,11 @@
 ---
 # code: language=ansible
+
 - name: Giustina's playbook
   hosts:
     - giustina
   roles:
-    # - role: svc_traefik
-    # - role: svc_portainer
-    # - role: svc_monitoring
+    - role: svc_traefik
+    - role: svc_portainer
+    - role: svc_lgtm
     - role: svc_dex

@@ -1,0 +1,12 @@
+---
+# code: language=ansible
+# Path: ansible/group_vars/all/alloy.yml
+# This file contains the variables for the Alloy service
+
+# Variables for the Alloy
+alloy_data_dir_name: svc_alloy_data
+alloy_data_dir: "{{ docker_volumes_dir }}/{{ alloy_data_dir_name }}"
+alloy_docker_image_name: grafana/alloy
+alloy_docker_image_version: latest
+alloy_docker_volume_name: svc_alloy_data_volume
+alloy_port: "12345"
