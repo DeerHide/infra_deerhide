@@ -9,3 +9,6 @@
     - role: deerhide_users
     - role: operator_gpg
     - role: svc_docker
+    - role: svc_traefik
+    - role: svc_alloy
+    - role: svc_portainer_agent

@@ -5,7 +5,6 @@
   hosts:
     - giustina
   roles:
-    - role: svc_traefik
     - role: svc_portainer
     - role: svc_lgtm
     - role: svc_dex
