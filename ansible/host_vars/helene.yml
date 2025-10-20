@@ -5,4 +5,6 @@
 
 # Variables for the DNS hostnames
 
+traefik_host: "traefik.helene.deerhide.run"
+alloy_host: "alloy.helene.deerhide.run"
 nginx_host: "nginx.helene.deerhide.run"
