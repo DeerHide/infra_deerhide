@@ -1,0 +1,72 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_nginx/tasks/setup_php.yml
+# This file contains the tasks to setup the Docker container for SVN
+
+- name: Create directory for php
+  ansible.builtin.file:
+    name: "{{ php_data_dir }}"
+    state: directory
+    mode: "700"
+    recurse: true
+  become: true
+
+- name: Create docker_volume for nginx data
+  community.docker.docker_volume:
+    name: "{{ php_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ php_data_dir }}"
+    state: present
+  become: true
+
+- name: Copy PHP index file to host
+  ansible.builtin.copy:
+    src: www/index.php
+    dest: "{{ php_data_dir }}/index.php"
+    mode: "644"
+  become: true
+
+- name: Create directory for php
+  ansible.builtin.file:
+    name: "{{ php_data_dir }}/php"
+    state: directory
+    mode: "700"
+    recurse: true
+  become: true
+
+- name: Copy php configuration to host
+  ansible.builtin.copy:
+    src: php/Dockerfile
+    dest: "{{ php_data_dir }}/php/Dockerfile"
+    mode: "600"
+  become: true
+
+- name: Build PHP image from Dockerfile
+  community.docker.docker_image:
+    name: "svc_nginx_php"
+    tag: "latest"
+    source: build
+    build:
+      path: "{{ php_data_dir }}/php"
+      dockerfile: "Dockerfile"
+    state: present
+  become: true
+
+- name: Create a PHP container
+  community.docker.docker_container:
+    name: svc_nginx_php
+    image: "svc_nginx_php:latest"
+    state: started
+    restart_policy: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - "{{ php_data_dir }}:/var/www/html"
+    networks:
+      - name: nginx_network
+    log_driver: "json-file"
+    recreate: true
+  become: true

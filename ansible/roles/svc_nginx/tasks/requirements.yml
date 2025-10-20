@@ -1,0 +1,41 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_nginx/tasks/requirements.yml
+# Install the requirements for the svc_nginx role
+
+- name: Check if docker-compose is already installed
+  ansible.builtin.command: docker-compose --version
+  register: docker_compose_check
+  ignore_errors: true
+  changed_when: false
+
+- name: Install dependencies for docker-compose (apt)
+  ansible.builtin.apt:
+    name:
+      - python3-pip
+      - python3-setuptools
+      - python3-wheel
+    state: present
+    update_cache: yes
+  become: true
+  when: docker_compose_check.rc != 0
+
+- name: Install docker-compose via apt if not present (compatible Ubuntu 24.04)
+  ansible.builtin.apt:
+    name: docker-compose
+    state: present
+    update_cache: yes
+  become: true
+  when: docker_compose_check.rc != 0
+
+- name: Check again if docker-compose is installed
+  ansible.builtin.command: docker-compose --version
+  register: docker_compose_check2
+  ignore_errors: true
+  changed_when: false
+
+- name: Fail if docker-compose is not available
+  ansible.builtin.fail:
+    msg: "docker-compose is not available on the remote host. Please install it manually."
+  when: docker_compose_check2.rc != 0
+  changed_when: false

@@ -1,0 +1,22 @@
+---
+# code: language=ansible
+
+# Requirements
+- name: Include tasks from requirements.yml
+  ansible.builtin.include_tasks: requirements.yml
+
+# Setup Network
+- name: Include tasks from setup_network.yml
+  ansible.builtin.include_tasks: setup_network.yml
+
+# Setup MySQL
+- name: Include tasks from setup_mysql.yml
+  ansible.builtin.include_tasks: setup_mysql.yml
+
+# Setup PHP
+- name: Include tasks from setup_php.yml
+  ansible.builtin.include_tasks: setup_php.yml
+
+# Setup Nginx
+- name: Include tasks from setup_nginx.yml
+  ansible.builtin.include_tasks: setup_nginx.yml

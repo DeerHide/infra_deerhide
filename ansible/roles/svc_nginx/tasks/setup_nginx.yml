@@ -1,0 +1,71 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_nginx/tasks/setup_nginx.yml
+# This file contains the tasks to setup the Docker container for SVN
+
+- name: Pull nginx image
+  community.docker.docker_image_pull:
+    name: "{{ nginx_docker_image_name }}"
+    tag: "{{ nginx_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_registry_hostname }}"
+  become: true
+
+- name: Create directory for nginx
+  ansible.builtin.file:
+    name: "{{ nginx_data_dir }}"
+    state: directory
+    mode: "700"
+    recurse: true
+  become: true
+
+- name: Create docker_volume for nginx data
+  community.docker.docker_volume:
+    name: "{{ nginx_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ nginx_data_dir }}"
+    state: present
+  become: true
+
+- name: Copy nginx configuration to host
+  ansible.builtin.copy:
+    src: files/default.conf
+    dest: "{{ nginx_data_dir }}/default.conf"
+    mode: "600"
+  become: true
+
+- name: Check if php container is running
+  community.docker.docker_container_info:
+    name: svc_nginx_php
+  register: php_container_info
+  failed_when: false
+
+- name: Wait for php container to be running
+  ansible.builtin.wait_for:
+    host: 172.19.0.3
+    port: 9000
+    delay: 2
+    timeout: 60
+  when: php_container_info.container is defined and php_container_info.container.State.Status == "running"
+
+- name: Create a Nginx container
+  community.docker.docker_container:
+    name: svc_nginx
+    image: "{{ nginx_docker_image_name }}:{{ nginx_docker_image_version }}"
+    state: started
+    restart_policy: always
+    ports:
+      - "8080:80"
+    volumes:
+      - "{{ nginx_data_dir }}:/var/www/html"
+    networks:
+      - name: nginx_network
+      - name: bridge
+    log_driver: "json-file"
+    recreate: true
+  become: true

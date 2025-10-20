@@ -6,3 +6,4 @@
     - helene
   roles:
     - role: svc_svn
+    - role: svc_nginx

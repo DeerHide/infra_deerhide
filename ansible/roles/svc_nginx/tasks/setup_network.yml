@@ -1,0 +1,11 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_nginx/tasks/setup_network.yml
+# This file contains the tasks to setup the Docker network for nginx, php and mysql
+
+- name: Create a Docker network for the services nginx, php and mysql
+  community.docker.docker_network:
+    name: nginx_network
+    state: present
+    driver: bridge
+  become: true

@@ -1,0 +1,62 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_nginx/tasks/setup_mysql.yml
+# This file contains the tasks to setup the Docker container for MySQL
+
+- name: Pull MySQL image
+  community.docker.docker_image_pull:
+    name: "{{ mysql_docker_image_name }}"
+    tag: "{{ mysql_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_registry_hostname }}"
+  become: true
+
+- name: Create directory for MySQL
+  ansible.builtin.file:
+    name: "{{ mysql_data_dir }}"
+    state: directory
+    mode: "700"
+    recurse: true
+  become: true
+
+- name: Create docker_volume for MySQL data
+  community.docker.docker_volume:
+    name: "{{ mysql_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ mysql_data_dir }}"
+    state: present
+  become: true
+
+- name: Create mysql_data directory
+  ansible.builtin.file:
+    name: "{{ mysql_data_dir }}/mysql_data"
+    state: directory
+    mode: "700"
+    recurse: true
+  become: true
+
+- name: Create a MySQL container
+  community.docker.docker_container:
+    name: svc_nginx_mysql
+    image: "{{ mysql_docker_image_name }}:{{ mysql_docker_image_version }}"
+    state: started
+    restart_policy: always
+    ports:
+      - "3306:3306"
+    env:
+      MYSQL_ROOT_PASSWORD: "rootpass"
+      MYSQL_DATABASE: "app_db"
+      MYSQL_USER: "app_user"
+      MYSQL_PASSWORD: "app_password"
+    volumes:
+      - "{{ mysql_data_dir }}/mysql_data:/var/lib/mysql"
+    networks:
+      - name: nginx_network
+    log_driver: "json-file"
+    recreate: true
+  become: true

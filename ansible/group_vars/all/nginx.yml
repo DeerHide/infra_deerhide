@@ -1,0 +1,23 @@
+---
+# code: language=ansible
+# Path: ansible/group_vars/all/nginx.yml
+# This file contains the variables for the SVN service
+
+# Nginx Vars
+nginx_data_dir_name: svc_nginx_data
+nginx_data_dir: "{{ docker_volumes_dir }}/{{ nginx_data_dir_name }}"
+nginx_docker_image_name: nginx
+nginx_docker_image_version: latest
+nginx_docker_volume_name: svc_nginx_data_volume
+
+# MySQL vars
+mysql_data_dir_name: svc_nginx_mysql_data
+mysql_data_dir: "{{ docker_volumes_dir }}/{{ mysql_data_dir_name }}"
+mysql_docker_image_name: mysql
+mysql_docker_image_version: 8.0
+mysql_docker_volume_name: svc_nginx_mysql_data_volume
+
+# PHP vars
+php_data_dir_name: svc_nginx_php_data
+php_data_dir: "{{ docker_volumes_dir }}/{{ php_data_dir_name }}"
+php_docker_volume_name: svc_nginx_php_data_volume
