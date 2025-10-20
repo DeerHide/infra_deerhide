@@ -24,3 +24,5 @@ traefik_file_provider_config: |
   file:
     directory: /etc/traefik/dynamic/
     watch: true
+
+minio_data_dir: "/volume1/docker_volumes/{{ minio_data_dir_name }}"
