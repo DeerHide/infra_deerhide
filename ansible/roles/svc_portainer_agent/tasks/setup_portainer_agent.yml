@@ -1,0 +1,30 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_portainer_agent/tasks/setup_portainer_agent.yml
+# This file contains the tasks to setup the Docker container for portainer agent
+
+- name: Pull portainer agent image
+  community.docker.docker_image_pull:
+    name: "portainer/agent"
+    tag: "latest"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_registry_hostname }}"
+  become: true
+
+- name: Create a portainer agent container
+  community.docker.docker_container:
+    name: svc_portainer_agent
+    image: "portainer/agent:latest"
+    state: started
+    restart_policy: always
+    ports:
+      - "9001:9001"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "{{ docker_volumes_dir }}:/var/lib/docker/volumes"
+    labels:
+      traefik.enable: "false"
+    recreate: true
+  become: true
