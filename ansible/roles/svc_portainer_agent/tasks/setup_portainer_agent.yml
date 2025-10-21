@@ -19,7 +19,7 @@
     image: "portainer/agent:latest"
     state: started
     restart_policy: always
-    ports:
+    ports: # Keep ports open for portainer access
       - "9001:9001"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
