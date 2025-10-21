@@ -1,0 +1,11 @@
+---
+# code: language=ansible
+# Path: ansible/group_vars/all.yml
+# This file contains the inventory variables for all hosts
+
+# Inventory variables for all hosts
+ansible_host: "{{ ansible_hostname }}.clb.deerhide.run"
+ansible_user: deerhide-operator
+ansible_port: 22
+ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+ansible_python_interpreter: /usr/bin/python3
