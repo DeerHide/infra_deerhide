@@ -30,14 +30,16 @@ declare -a PLAYBOOKS
 PLAYBOOKS+=("ansible/playbook.yml (All hosts)", "ansible/rasp-playbook.yml (Rasp hosts)")
 
 # Extract the unique list of hosts
-HOSTS=($(awk '/^[^#\\[]/ && /ansible_host=/{print $1}' ${ANSIBLE_INVENTORY} | sort -u))
-
-for host in "${HOSTS[@]}"; do
-  pb="ansible/${host}-playbook.yml"
-  if [[ -f "$pb" ]]; then
-    PLAYBOOKS+=("$pb ($host only)")
+while IFS= read -r host; do
+  # Remove any trailing whitespace and newlines
+  host=$(echo "$host" | tr -d '\n\r' | xargs)
+  if [[ -n "$host" && "$host" != "" && "$host" =~ ^[a-zA-Z] ]]; then
+    pb="ansible/${host}-playbook.yml"
+    if [[ -f "$pb" ]]; then
+      PLAYBOOKS+=("$pb ($host only)")
+    fi
   fi
-done
+done < <(awk '/^[^#\[]/ && !/^\[/ && NF>0 {print $1}' ${ANSIBLE_INVENTORY} | sort -u)
 
 # Detect if an argument is passed and use as PB_DESC
 if [[ -n "$1" ]]; then
