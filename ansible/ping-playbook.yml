@@ -3,11 +3,7 @@
 
 - name: Ping
   hosts:
-    - melissa
-    - claudia
-    - bunryl
-    - helene
-    - giustina
+    - all
   tasks:
     - name: Ping
       ansible.builtin.ping: ~

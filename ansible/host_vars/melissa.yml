@@ -4,7 +4,6 @@
 # This file contains the variables for the melissa host
 
 # Variables for the DNS hostnames
-
 traefik_host: "traefik.melissa.deerhide.run"
 minio_host: "minio.melissa.deerhide.run"
 minio_console_host: "console-minio.melissa.deerhide.run"

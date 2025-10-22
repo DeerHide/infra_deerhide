@@ -10,3 +10,12 @@ managed_users:
   - "deerhide-operator-tom4897"
   - "deerhide-operator-miragecentury"
   - "deerhide-operator-nakou"
+
+
+# Variables for the Operator GPG service
+deerhide_operator_home: "/home/deerhide-operator"
+git_executable_path: "/usr/bin/git"
+python_executable_path: "/usr/bin/python3"
+
+# Operator GPG configuration
+gpg_group: deerhide-operator

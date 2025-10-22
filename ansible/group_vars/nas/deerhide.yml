@@ -1,0 +1,12 @@
+---
+# code: language=ansible
+# Path: ansible/group_vars/nas/deerhide.yml
+# This file contains the variables for the DeerHide service on the NAS
+
+# Variables for the Operator GPG service
+deerhide_operator_home: "/var/services/homes/deerhide-operator"
+git_executable_path: "/usr/local/bin/git"
+python_executable_path: "/usr/local/bin/python3.9"
+
+# Operator GPG configuration (null for Synology)
+gpg_group: null
