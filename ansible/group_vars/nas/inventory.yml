@@ -5,6 +5,4 @@
 
 # Inventory variables for the NAS hosts
 ansible_port: 2222
-ansible_password: "{{ bunryl_deerhide_operator_password }}"
 ansible_python_interpreter: /usr/local/bin/python3.9
-ansible_become_pass: "{{ bunryl_deerhide_operator_password }}"

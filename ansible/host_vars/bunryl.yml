@@ -3,6 +3,10 @@
 # Path: ansible/host_vars/bunryl.yml
 # This file contains the variables for the bunryl host
 
+# Inventory variables for the Ansible host
+ansible_password: "{{ bunryl_deerhide_operator_password }}"
+ansible_become_pass: "{{ bunryl_deerhide_operator_password }}"
+
 # Variables for the DNS hostnames
 traefik_host: "traefik.bunryl.deerhide.run"
 minio_host: "minio.bunryl.deerhide.run"
