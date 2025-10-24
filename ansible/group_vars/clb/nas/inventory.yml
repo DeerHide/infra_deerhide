@@ -1,6 +1,6 @@
 ---
 # code: language=ansible
-# Path: ansible/group_vars/nas/inventory.yml
+# Path: ansible/group_vars/clb/nas/inventory.yml
 # This file contains the inventory variables for the NAS hosts
 
 # Inventory variables for the NAS hosts
