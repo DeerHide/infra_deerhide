@@ -1,29 +1,10 @@
 ---
 # code: language=ansible
 
-- name: Melissa's playbook
-  hosts:
-    - melissa
-  roles:
-    - role: svc_traefik
-    - role: svc_coredns
-    - role: svc_httpd
-    - role: svc_haproxy
-    - role: svc_nut
-
-- name: Bunryl's playbook
-  hosts:
-    - bunryl
-  roles:
-    - role: cli_minio
-    - role: operator_gpg
-    - role: svc_traefik
-    - role: svc_minio
-
-- name: Claudia's playbook
-  hosts:
-    - claudia
-  roles:
-    - role: svc_traefik
-    - role: cli_minio
-    - role: svc_minio
+- name: All hosts playbook
+  ansible.builtin.import_playbook:
+    - melissa-playbook.yml
+    - bunryl-playbook.yml
+    - claudia-playbook.yml
+    - helene-playbook.yml
+    - giustina-playbook.yml
