@@ -3,7 +3,7 @@
 
 - name: All rasp's playbook
   hosts:
-    - rasp
+    - clb_rasp
   roles:
     - role: updates
     - role: deerhide_users
