@@ -1,7 +1,7 @@
 ---
 # code: language=ansible
-# Path: ansible/group_vars/clb/nas/deerhide.yml
-# This file contains the variables for the DeerHide service on the NAS
+# Path: ansible/group_vars/clb_nas/deerhide.yml
+# This file contains the variables for the Operator GPG service on the NAS
 
 # Variables for the Operator GPG service
 deerhide_operator_home: "/var/services/homes/deerhide-operator"

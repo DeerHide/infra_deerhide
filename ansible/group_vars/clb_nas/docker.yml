@@ -1,0 +1,7 @@
+---
+# code: language=ansible
+# Path: ansible/group_vars/clb_nas/docker.yml
+# This file contains the variables for the Docker service on the NAS
+
+# Variables for the Docker service on the NAS
+docker_volumes_dir: "/volume1/docker_volumes"
