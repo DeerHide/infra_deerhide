@@ -4,6 +4,7 @@
 - name: Ping
   hosts:
     - all
+  become: false
   tasks:
     - name: Ping
       ansible.builtin.ping: ~
