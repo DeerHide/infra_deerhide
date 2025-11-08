@@ -12,32 +12,32 @@
   become: true
   become_user: deerhide-operator
   changed_when: false
-  register: minio_users_list
+  register: svc_minio_users_list
 
 - name: Set fact and generate password
   ansible.builtin.set_fact:
     svc_minio_users:
       - {
-        name: "mirage",
-        gpg_userid: "{{ deerhide_gpg_userid_mirage }}",
-        userid: "{{ slack_mirage }}",
-        present: "{{ minio_users_list.stdout | from_json | community.general.json_query(check_mirage) | bool }}",
-        password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=15) }}",
-      } # noqa: jinja[invalid]
+          name: "mirage",
+          gpg_userid: "{{ deerhide_gpg_userid_mirage }}",
+          userid: "{{ slack_mirage }}",
+          present: "{{ svc_minio_users_list.stdout | from_json | community.general.json_query(check_mirage) | bool }}",
+          password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=15) }}",
+        } # noqa: jinja[invalid]
       - {
-        name: "nakou",
-        gpg_userid: "{{ deerhide_gpg_userid_nakou }}",
-        userid: "{{ slack_nakou }}",
-        present: "{{ minio_users_list.stdout | from_json | community.general.json_query(check_nakou) | bool }}",
-        password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=15) }}",
-      } # noqa: jinja[invalid]
+          name: "nakou",
+          gpg_userid: "{{ deerhide_gpg_userid_nakou }}",
+          userid: "{{ slack_nakou }}",
+          present: "{{ svc_minio_users_list.stdout | from_json | community.general.json_query(check_nakou) | bool }}",
+          password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=15) }}",
+        } # noqa: jinja[invalid]
       - {
-        name: "tom",
-        gpg_userid: "{{ deerhide_gpg_userid_tom }}",
-        userid: "{{ slack_tom }}",
-        present: "{{ minio_users_list.stdout | from_json | community.general.json_query(check_tom) | bool }}",
-        password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=15) }}",
-      } # noqa: jinja[invalid]
+          name: "tom",
+          gpg_userid: "{{ deerhide_gpg_userid_tom }}",
+          userid: "{{ slack_tom }}",
+          present: "{{ svc_minio_users_list.stdout | from_json | community.general.json_query(check_tom) | bool }}",
+          password: "{{ lookup('ansible.builtin.password', '/dev/null', chars=['ascii_letters', 'digits'], length=15) }}",
+        } # noqa: jinja[invalid]
   vars:
     check_mirage: "[?status==`success`] | contains([].accessKey, `mirage`)"
     check_nakou: "[?status==`success`] | contains([].accessKey, `nakou`)"
@@ -65,7 +65,7 @@
       changed_when: false
       when: item.present is false
       with_items: "{{ svc_minio_users }}"
-      register: gpg_encrypt_results
+      register: svc_minio_gpg_encrypt_results
 
   rescue:
     - name: Remove MinIO users if an error occurred
@@ -75,7 +75,7 @@
       become_user: deerhide-operator
       changed_when: true
       with_items: "{{ svc_minio_users }}"
-      register: removed_minio_users
+      register: svc_minio_removed_minio_users
 
 - name: Send encrypted file to each users with slack
   community.general.slack:
@@ -92,16 +92,16 @@
             {{ item.stdout }}
             ```
   when: item.item.present is false
-  with_items: "{{ gpg_encrypt_results.results }}"
-  failed_when: (removed_minio_users is defined) and (removed_minio_users.stdout|int == 1)
+  with_items: "{{ svc_minio_gpg_encrypt_results.results }}"
+  failed_when: (svc_minio_removed_minio_users is defined) and (svc_minio_removed_minio_users.stdout|int == 1)
 
 - name: Remove credential file
   ansible.builtin.shell:
     executable: /bin/bash
     cmd: rm /tmp/minio_ID_*
-  register: remove_tmp_minio_file
+  register: svc_minio_remove_tmp_minio_file
   changed_when: false
-  failed_when: remove_tmp_minio_file == ""
+  failed_when: svc_minio_remove_tmp_minio_file == ""
   become: true
 
 - name: Add consoleAdmin policy for each user

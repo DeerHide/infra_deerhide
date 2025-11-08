@@ -9,3 +9,6 @@
 
 # Ansible Facts
 .ansible_facts_cache
+
+# Poetry
+poetry.lock
