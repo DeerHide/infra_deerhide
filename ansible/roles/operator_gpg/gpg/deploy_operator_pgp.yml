@@ -51,6 +51,6 @@
     key_file: "{{ deerhide_operator_home }}/.ssh/github_operator-gpg_deploy_key"
   become: true
   become_user: deerhide-operator
-  register: git_operator_gpg
+  register: operator_gpg_git
   notify:
     - Import the operator's PGP key

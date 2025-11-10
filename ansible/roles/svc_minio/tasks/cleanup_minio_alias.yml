@@ -11,7 +11,7 @@
       become: true
       become_user: deerhide-operator
       changed_when: false
-      register: minio_alias_exists
+      register: svc_minio_alias_exists
 
     - name: Remove MinIO alias if exists for {{ ansible_hostname }}
       ansible.builtin.command:
@@ -20,13 +20,14 @@
       become: true
       become_user: deerhide-operator
       changed_when: true
-      when: ansible_hostname in minio_alias_exists.stdout
+      when: ansible_hostname in svc_minio_alias_exists.stdout
 
 - name: Check MinIO alias and display status
   block:
     - name: Check if MinIO alias has been removed for {{ ansible_hostname }}
       ansible.builtin.shell:
         cmd: |
+          set -o pipefail
           if /usr/local/bin/mc alias list | grep -q "{{ ansible_hostname }}"; then
             echo "MinIO alias {{ ansible_hostname }} still exists"
             exit 1
@@ -34,12 +35,13 @@
             echo "MinIO alias {{ ansible_hostname }} has been removed"
             exit 0
           fi
+        executable: /bin/bash
       become: true
       become_user: deerhide-operator
       changed_when: false
       failed_when: false
-      register: alias_check
+      register: svc_minio_alias_check
 
     - name: Display alias removal status
       ansible.builtin.debug:
-        msg: "{{ alias_check.stdout }}"
+        msg: "{{ svc_minio_alias_check.stdout }}"

@@ -51,10 +51,10 @@
       gpg-agent --daemon --allow-loopback-pinentry --pinentry-program /usr/bin/pinentry-curses
   become: true
   become_user: deerhide-operator
-  register: gpg_agent_result
+  register: operator_gpg_agent_result
   failed_when: >
-    gpg_agent_result.rc != 0 and
-    ('gpg-agent: a gpg-agent is already running - not starting a new one' not in gpg_agent_result.stderr)
+    operator_gpg_agent_result.rc != 0 and
+    ('gpg-agent: a gpg-agent is already running - not starting a new one' not in operator_gpg_agent_result.stderr)
   changed_when: false
 
 - name: Generate the host PGP key # noqa: command-instead-of-shell
@@ -67,8 +67,8 @@
       echo {{ host_gpg_passphrase }} | gpg --batch --passphrase-fd 0 --gen-key /opt/operator/gen-key-script
   args:
     creates: "/opt/operator/host-gpg"
-  register: host_gpg_key
-  changed_when: host_gpg_key.rc == 0
+  register: operator_gpg_host_gpg_key
+  changed_when: operator_gpg_host_gpg_key.rc == 0
 
 - name: Expose in /opt/operator the host PGP key
   ansible.builtin.shell:
@@ -76,8 +76,8 @@
     cmd: "gpg --armor --export {{ ansible_hostname }}@deerhide.run > /opt/operator/host-gpg"
   args:
     creates: "/opt/operator/host-gpg"
-  register: host_gpg_key
-  changed_when: host_gpg_key.rc == 0
+  register: operator_gpg_host_gpg_key
+  changed_when: operator_gpg_host_gpg_key.rc == 0
 
 - name: Fix GPG file permissions after key generation
   ansible.builtin.file:

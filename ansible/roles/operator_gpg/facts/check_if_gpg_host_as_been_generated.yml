@@ -6,11 +6,11 @@
   ansible.builtin.shell:
     executable: "/bin/bash"
     cmd: "set -eo pipefail && [[ $(gpg --list-secret-keys | grep -c {{ ansible_hostname }}@deerhide.run) -eq 1 ]]"
-  register: gpg_key_exists
+  register: operator_gpg_key_exists
   changed_when: false
   failed_when: false
 
 - name: Set fact if the host PGP key has been generated
   ansible.builtin.set_fact:
-    gpg_key_exists: "{{ gpg_key_exists.rc | int == 0 }}"
+    operator_gpg_key_exists: "{{ operator_gpg_key_exists.rc | int == 0 }}"
   changed_when: false

@@ -13,13 +13,13 @@ telemetry:
   http: {{ dex_telemetry_http }}
 
 expiry:
-  deviceRequest: {{ dex_expiry_deviceRequest }}
-  signingKeys: {{ dex_expiry_signingKeys }}
-  idTokens: {{ dex_expiry_idTokens }}
+  deviceRequest: {{ dex_expiry_devicerequest }}
+  signingKeys: {{ dex_expiry_signingkeys }}
+  idTokens: {{ dex_expiry_idtokens }}
   refreshTokens:
-    reuseInterval: {{ dex_expiry_refreshTokens_reuseInterval }}
-    validIfNotUsedFor: {{ dex_expiry_refreshTokens_validIfNotUsedFor }}
-    absoluteLifetime: {{ dex_expiry_refreshTokens_absoluteLifetime }}
+    reuseInterval: {{ dex_expiry_refreshtokens_reuseinterval }}
+    validIfNotUsedFor: {{ dex_expiry_refreshtokens_validifnotusedfor }}
+    absoluteLifetime: {{ dex_expiry_refreshtokens_absolutelifetime }}
 
 logger:
   level: {{ dex_logger_level }}

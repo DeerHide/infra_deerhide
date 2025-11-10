@@ -11,7 +11,7 @@
       become: true
       become_user: deerhide-operator
       changed_when: false
-      register: minio_alias_list
+      register: svc_minio_alias_list
 
     - name: Create MinIO alias if missing for {{ ansible_hostname }}
       ansible.builtin.command:
@@ -23,4 +23,4 @@
       become: true
       become_user: deerhide-operator
       changed_when: true
-      when: ansible_hostname not in minio_alias_list.stdout
+      when: ansible_hostname not in svc_minio_alias_list.stdout
