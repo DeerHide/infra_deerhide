@@ -65,7 +65,7 @@
     - name: Check if git is available
       ansible.builtin.command:
         cmd: /usr/local/bin/git --version
-      register: git_version
+      register: operator_gpg_git_version
       become: true
       changed_when: false
       ignore_errors: true
@@ -74,4 +74,4 @@
     - name: Fail if git is not available
       ansible.builtin.fail:
         msg: "Install Git packages directly on {{ ansible_hostname }}"
-      when: git_version.rc != 0
+      when: operator_gpg_git_version.rc != 0

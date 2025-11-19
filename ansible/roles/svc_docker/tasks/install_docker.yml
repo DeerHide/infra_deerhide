@@ -37,18 +37,18 @@
     mode: a+r
   become: true
 
-- name: Found and register "arch"
+- name: Found and register "svc_docker_arch"
   ansible.builtin.command:
     cmd: dpkg --print-architecture
   become: true
-  register: archi
+  register: svc_docker_arch
   changed_when: false
 
 - name: Found and register "$VERSION_CODENAME"
   ansible.builtin.shell:
     cmd: ". /etc/os-release && echo ${VERSION_CODENAME}"
   become: true
-  register: version_codename
+  register: svc_docker_version_codename
   changed_when: false
 
 - name: Add repository to Apt sources

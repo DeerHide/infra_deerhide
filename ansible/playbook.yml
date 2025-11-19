@@ -1,17 +1,17 @@
 ---
 # code: language=ansible
 
-# name: Melissa's playbook
-- import_playbook: melissa-playbook.yml
+- name: Melissa's playbook
+  ansible.builtin.import_playbook: melissa-playbook.yml
 
-# name: Bunryl's playbook
-- import_playbook: bunryl-playbook.yml
+- name: Bunryl's playbook
+  ansible.builtin.import_playbook: bunryl-playbook.yml
 
-# name: Claudia's playbook
-- import_playbook: claudia-playbook.yml
+- name: Claudia's playbook
+  ansible.builtin.import_playbook: claudia-playbook.yml
 
-# name: Helene's playbook
-- import_playbook: helene-playbook.yml
+- name: Helene's playbook
+  ansible.builtin.import_playbook: helene-playbook.yml
 
-# name: Giustina's playbook
-- import_playbook: giustina-playbook.yml
+- name: Giustina's playbook
+  ansible.builtin.import_playbook: giustina-playbook.yml

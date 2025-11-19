@@ -4,12 +4,12 @@
 # This file contains the variables for the Docker service
 
 dex_telemetry_http: "0.0.0.0:5557"
-dex_expiry_deviceRequest: "5m"
-dex_expiry_signingKeys: "6h"
-dex_expiry_idTokens: "24h"
-dex_expiry_refreshTokens_reuseInterval: "3s"
-dex_expiry_refreshTokens_validIfNotUsedFor: "2160h" # 90 days
-dex_expiry_refreshTokens_absoluteLifetime: "3960h" # 165 days
+dex_expiry_devicerequest: "5m"
+dex_expiry_signingkeys: "6h"
+dex_expiry_idtokens: "24h"
+dex_expiry_refreshtokens_reuseinterval: "3s"
+dex_expiry_refreshtokens_validifnotusedfor: "2160h" # 90 days
+dex_expiry_refreshtokens_absolutelifetime: "3960h" # 165 days
 dex_logger_level: "info"
 dex_logger_format: "json"
 dex_docker_image_name: "dexidp/dex"
