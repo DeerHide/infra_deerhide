@@ -1,0 +1,10 @@
+---
+# code: language=ansible
+# Path: ansible/host_vars/marlene.yml
+# This file contains the variables for the marlene host
+
+# Variables for the DNS hostnames
+traefik_host: "traefik.marlene.deerhide.run"
+alloy_host: "alloy.marlene.deerhide.run"
+netboot_xyz_host: "netboot.marlene.deerhide.run"
+netboot_xyz_assets_host: "assets-netboot.marlene.deerhide.run"

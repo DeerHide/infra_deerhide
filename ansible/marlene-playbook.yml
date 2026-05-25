@@ -1,0 +1,15 @@
+---
+# code: language=ansible
+
+- name: Marlene's playbook
+  hosts:
+    - marlene
+  roles:
+    - role: updates
+    - role: deerhide_users
+    - role: operator_gpg
+    - role: svc_docker
+    - role: svc_traefik
+    - role: svc_alloy
+    - role: svc_portainer_agent
+    - role: svc_netboot_xyz

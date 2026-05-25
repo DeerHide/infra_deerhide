@@ -1,0 +1,5 @@
+---
+# code: language=ansible
+
+- name: Include tasks from setup_netboot_xyz.yml
+  ansible.builtin.include_tasks: setup_netboot_xyz.yml

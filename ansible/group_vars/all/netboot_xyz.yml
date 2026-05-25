@@ -1,0 +1,16 @@
+---
+# code: language=ansible
+# Path: ansible/group_vars/all/netboot_xyz.yml
+# This file contains the variables for the netboot.xyz service
+
+netboot_xyz_data_dir_name: svc_netboot_xyz_data
+netboot_xyz_data_dir: "{{ docker_volumes_dir }}/{{ netboot_xyz_data_dir_name }}"
+netboot_xyz_assets_dir_name: svc_netboot_xyz_assets
+netboot_xyz_assets_dir: "{{ docker_volumes_dir }}/{{ netboot_xyz_assets_dir_name }}"
+netboot_xyz_docker_image_name: docker.io/netbootxyz/netbootxyz
+netboot_xyz_docker_image_version: latest
+netboot_xyz_docker_container_name: svc_netboot_xyz
+netboot_xyz_webapp_port: "3000"
+netboot_xyz_assets_port: "80"
+netboot_xyz_tftp_port: "69"
+netboot_xyz_tz: UTC

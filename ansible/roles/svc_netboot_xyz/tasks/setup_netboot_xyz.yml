@@ -1,0 +1,85 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_netboot_xyz/tasks/setup_netboot_xyz.yml
+# This file contains the tasks to setup the Docker container for netboot.xyz
+
+- name: Pull netboot.xyz image
+  community.docker.docker_image_pull:
+    name: "{{ netboot_xyz_docker_image_name }}"
+    tag: "{{ netboot_xyz_docker_image_version }}"
+    pull: always
+    timeout: 10
+  become: true
+
+- name: Create directory for netboot.xyz
+  ansible.builtin.file:
+    name: "{{ netboot_xyz_data_dir }}"
+    state: directory
+    mode: "755"
+    recurse: true
+  become: true
+
+- name: Create assets directory for netboot.xyz
+  ansible.builtin.file:
+    name: "{{ netboot_xyz_assets_dir }}"
+    state: directory
+    mode: "755"
+    recurse: true
+  become: true
+
+- name: Create a netboot.xyz container
+  community.docker.docker_container:
+    name: "{{ netboot_xyz_docker_container_name }}"
+    image: "{{ netboot_xyz_docker_image_name }}:{{ netboot_xyz_docker_image_version }}"
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "{{ netboot_xyz_tftp_port }}:69/udp"
+    volumes:
+      - "{{ netboot_xyz_data_dir }}:/config"
+      - "{{ netboot_xyz_assets_dir }}:/assets"
+    env:
+      TZ: "{{ netboot_xyz_tz }}"
+      NGINX_PORT: "{{ netboot_xyz_assets_port }}"
+      WEB_APP_PORT: "{{ netboot_xyz_webapp_port }}"
+    labels:
+      traefik.enable: "true"
+      # Web app router (HTTPS)
+      traefik.http.routers.svc_netboot_xyz.rule: "Host(`{{ netboot_xyz_host }}`)"
+      traefik.http.routers.svc_netboot_xyz.entrypoints: "websecure"
+      traefik.http.routers.svc_netboot_xyz.tls: "true"
+      traefik.http.routers.svc_netboot_xyz.tls.certresolver: "cloudflare"
+      traefik.http.routers.svc_netboot_xyz.service: "svc_netboot_xyz_service"
+      traefik.http.services.svc_netboot_xyz_service.loadbalancer.server.port: "{{ netboot_xyz_webapp_port }}"
+      # Web app router (HTTP -> HTTPS redirect)
+      traefik.http.routers.svc_netboot_xyz_http.rule: "Host(`{{ netboot_xyz_host }}`)"
+      traefik.http.routers.svc_netboot_xyz_http.entrypoints: "web"
+      traefik.http.routers.svc_netboot_xyz_http.middlewares: "redirect-to-https"
+      # Assets router (HTTPS)
+      traefik.http.routers.svc_netboot_xyz_assets.rule: "Host(`{{ netboot_xyz_assets_host }}`)"
+      traefik.http.routers.svc_netboot_xyz_assets.entrypoints: "websecure"
+      traefik.http.routers.svc_netboot_xyz_assets.tls: "true"
+      traefik.http.routers.svc_netboot_xyz_assets.tls.certresolver: "cloudflare"
+      traefik.http.routers.svc_netboot_xyz_assets.service: "svc_netboot_xyz_assets_service"
+      traefik.http.services.svc_netboot_xyz_assets_service.loadbalancer.server.port: "80"
+      # Assets router (HTTP -> HTTPS redirect)
+      traefik.http.routers.svc_netboot_xyz_assets_http.rule: "Host(`{{ netboot_xyz_assets_host }}`)"
+      traefik.http.routers.svc_netboot_xyz_assets_http.entrypoints: "web"
+      traefik.http.routers.svc_netboot_xyz_assets_http.middlewares: "redirect-to-https"
+      # Shared HTTP -> HTTPS redirect middleware (defined by other services as well)
+      traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: "https"
+    recreate: true
+  become: true
+# TODO: Check if live_endpoint is still needed
+# - name: Configure netboot.xyz live_endpoint to local assets host
+#   ansible.builtin.wait_for:
+#     path: "{{ netboot_xyz_data_dir }}/boot.cfg"
+#     timeout: 30
+#   become: true
+
+# - name: Set netboot.xyz live_endpoint to local assets host
+#   ansible.builtin.lineinfile:
+#     path: "{{ netboot_xyz_data_dir }}/boot.cfg"
+#     regexp: "^isset \\$\\{live_endpoint\\} \\|\\| set live_endpoint .*"
+#     line: "isset ${live_endpoint} || set live_endpoint https://{{ netboot_xyz_assets_host }}"
+#   become: true

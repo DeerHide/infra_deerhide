@@ -15,3 +15,6 @@
 
 - name: Giustina's playbook
   ansible.builtin.import_playbook: giustina-playbook.yml
+
+- name: Marlene's playbook
+  ansible.builtin.import_playbook: marlene-playbook.yml
