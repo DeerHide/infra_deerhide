@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `svc_netboot_xyz`: switch the container to `network_mode: host` so the
+  TFTP data channel (which uses a fresh ephemeral source port per RFC
+  1350) is reachable from PXE clients. Docker's bridge NAT cannot track
+  TFTP without the `nf_conntrack_tftp` helper, which produced
+  `PXE-E18: Server response timeout` on bare-metal boot.
+
+### Changed
+
+- `svc_netboot_xyz`: move the assets nginx off port `80` to `8081`
+  (`netboot_xyz_assets_port`) to avoid colliding with Traefik now that
+  the container shares the host network namespace.
+- `svc_netboot_xyz`: the assets Traefik service label now uses
+  `netboot_xyz_assets_port` instead of the hardcoded `80`, so changing
+  the port no longer requires touching the role.
+- `svc_traefik`: add `host.docker.internal -> host-gateway` to the
+  Traefik container's `/etc/hosts`. Traefik v3's Docker provider relies
+  on this lookup to route to containers that use `network_mode: host`.
+
 ## [0.1.0] - 2026-05-26
 
 ### Added

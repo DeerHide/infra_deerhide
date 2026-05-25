@@ -33,8 +33,11 @@
     image: "{{ netboot_xyz_docker_image_name }}:{{ netboot_xyz_docker_image_version }}"
     state: started
     restart_policy: unless-stopped
-    ports:
-      - "{{ netboot_xyz_tftp_port }}:69/udp"
+    # Host networking is required for TFTP: the protocol uses a fresh
+    # ephemeral source port for the data channel, which Docker's bridge
+    # NAT cannot track without the nf_conntrack_tftp helper. Binding the
+    # container directly to the host network avoids the issue entirely.
+    network_mode: host
     volumes:
       - "{{ netboot_xyz_data_dir }}:/config"
       - "{{ netboot_xyz_assets_dir }}:/assets"
@@ -61,7 +64,7 @@
       traefik.http.routers.svc_netboot_xyz_assets.tls: "true"
       traefik.http.routers.svc_netboot_xyz_assets.tls.certresolver: "cloudflare"
       traefik.http.routers.svc_netboot_xyz_assets.service: "svc_netboot_xyz_assets_service"
-      traefik.http.services.svc_netboot_xyz_assets_service.loadbalancer.server.port: "80"
+      traefik.http.services.svc_netboot_xyz_assets_service.loadbalancer.server.port: "{{ netboot_xyz_assets_port }}"
       # Assets router (HTTP -> HTTPS redirect)
       traefik.http.routers.svc_netboot_xyz_assets_http.rule: "Host(`{{ netboot_xyz_assets_host }}`)"
       traefik.http.routers.svc_netboot_xyz_assets_http.entrypoints: "web"

@@ -74,6 +74,11 @@
       - "80:80"
       - "443:443"
       - "8080:8080"
+    # Required so Traefik's Docker provider can route to containers that
+    # use network_mode: host (e.g. svc_netboot_xyz). In v3 Traefik looks
+    # up `host.docker.internal` to reach the host network namespace.
+    etc_hosts:
+      host.docker.internal: host-gateway
     volumes:
       - "{{ traefik_data_dir }}/traefik.yml:/etc/traefik/traefik.yml"
       - "/var/run/docker.sock:/var/run/docker.sock"

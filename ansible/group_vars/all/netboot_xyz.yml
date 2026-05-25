@@ -11,6 +11,8 @@ netboot_xyz_docker_image_name: docker.io/netbootxyz/netbootxyz
 netboot_xyz_docker_image_version: latest
 netboot_xyz_docker_container_name: svc_netboot_xyz
 netboot_xyz_webapp_port: "3000"
-netboot_xyz_assets_port: "80"
+# Assets nginx must not collide with Traefik (which binds host :80) now
+# that the container runs in network_mode: host on marlene.
+netboot_xyz_assets_port: "8081"
 netboot_xyz_tftp_port: "69"
 netboot_xyz_tz: UTC
