@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-05-26
+
 ### Fixed
 
 - `svc_netboot_xyz`: switch the container to `network_mode: host` so the
@@ -58,5 +60,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   uses the negated boolean form, removing the `literal-compare` lint
   suppression.
 
-[Unreleased]: https://github.com/DeerHide/infra_deerhide/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/DeerHide/infra_deerhide/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/DeerHide/infra_deerhide/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/DeerHide/infra_deerhide/releases/tag/v0.1.0
