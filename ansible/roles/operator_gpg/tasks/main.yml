@@ -25,7 +25,7 @@
 
 - name: Import generate_host_pgp.yml
   ansible.builtin.import_tasks: gpg/generate_host_pgp.yml
-  when: gpg_key_exists == false  # noqa: literal-compare
+  when: not operator_gpg_key_exists
 
 # Import GPG Keys
 
