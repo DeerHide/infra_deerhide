@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-05-26
+
 ### Added
 
 - `svc_netboot_xyz` role to deploy netboot.xyz in Docker, exposing the
@@ -18,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   new netboot.xyz service.
 - `group_vars/all/netboot_xyz.yml` with default container, port and
   storage settings for the netboot.xyz service.
+- Initial `CHANGELOG.md` following the Keep a Changelog format to track
+  notable project changes from this release onward.
 
 ### Changed
 
@@ -34,4 +38,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   uses the negated boolean form, removing the `literal-compare` lint
   suppression.
 
-[Unreleased]: https://github.com/DeerHide/infra_deerhide/compare/HEAD...HEAD
+[Unreleased]: https://github.com/DeerHide/infra_deerhide/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/DeerHide/infra_deerhide/releases/tag/v0.1.0
