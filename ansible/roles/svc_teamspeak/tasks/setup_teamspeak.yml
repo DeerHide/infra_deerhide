@@ -1,0 +1,53 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_teamspeak/tasks/setup_teamspeak.yml
+# This file contains the tasks to setup the Docker container for Teamspeak 6 Server
+
+- name: Debug variables
+  ansible.builtin.debug:
+    var: teamspeak_docker_image_name
+
+- name: Pull teamspeak image
+  community.docker.docker_image_pull:
+    name: "{{ teamspeak_docker_image_name }}"
+    tag: "{{ teamspeak_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_registry_hostname }}"
+  become: true
+
+- name: Create directory for teamspeak
+  ansible.builtin.file:
+    name: "{{ teamspeak_data_dir }}"
+    state: directory
+    mode: "777"
+    recurse: true
+  become: true
+
+- name: Create docker_volume for teamspeak data
+  community.docker.docker_volume:
+    name: "{{ teamspeak_docker_volume_name }}"
+    driver: local
+    driver_options:
+      type: "none"
+      o: "bind"
+      device: "{{ teamspeak_data_dir }}"
+    state: present
+  become: true
+
+- name: Create a teamspeak container
+  community.docker.docker_container:
+    name: svc_teamspeak
+    image: "{{ teamspeak_docker_image_name }}:{{ teamspeak_docker_image_version }}"
+    state: started
+    restart_policy: always
+    env:
+      TSSERVER_LICENSE_ACCEPTED: "accept"
+    volumes:
+      - "{{ teamspeak_data_dir }}:/var/tsserver/"
+    ports:
+      - "9987:9987/udp"
+      - "30033:30033/tcp"
+    recreate: true
+  become: true
