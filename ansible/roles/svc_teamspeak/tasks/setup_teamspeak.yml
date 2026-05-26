@@ -3,10 +3,6 @@
 # Path: ansible/roles/svc_teamspeak/tasks/setup_teamspeak.yml
 # This file contains the tasks to setup the Docker container for Teamspeak 6 Server
 
-- name: Debug variables
-  ansible.builtin.debug:
-    var: teamspeak_docker_image_name
-
 - name: Pull teamspeak image
   community.docker.docker_image_pull:
     name: "{{ teamspeak_docker_image_name }}"
