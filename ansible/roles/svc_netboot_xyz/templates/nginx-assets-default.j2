@@ -1,0 +1,12 @@
+{# Path: ansible/roles/svc_netboot_xyz/templates/nginx-assets-default.j2 #}
+{# Assets nginx vhost served from /assets inside the netboot.xyz container. #}
+{# The upstream image only templates this file on first start, so we manage it #}
+{# from Ansible to keep the listen port in sync with netboot_xyz_assets_port #}
+{# (avoiding a host port-80 collision with Traefik under network_mode: host). #}
+server {
+	listen {{ netboot_xyz_assets_port }};
+	location / {
+		root /assets;
+		autoindex on;
+	}
+}

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `svc_netboot_xyz`: manage the assets nginx vhost
+  (`/config/nginx/site-confs/default`) from Ansible with a template bound
+  to `netboot_xyz_assets_port`. The upstream image only renders this file
+  on the very first container start, so a stale `listen 80;` persisted in
+  the bind-mounted volume kept colliding with Traefik (which owns host
+  `:80` under `network_mode: host`), crash-looping nginx with
+  `bind() to 0.0.0.0:80 failed (98: Address in use)`.
+
 ## [0.1.1] - 2026-05-26
 
 ### Fixed
