@@ -27,6 +27,26 @@
     recurse: true
   become: true
 
+# The netboot.xyz image only templates /config/nginx/site-confs/default on the
+# very first container start and then leaves the persisted file untouched. With
+# network_mode: host this nginx must not listen on :80 (Traefik owns it), so we
+# manage the file from Ansible to keep `listen` aligned with
+# netboot_xyz_assets_port across upgrades and volume resets.
+- name: Ensure netboot.xyz assets nginx site-confs directory exists
+  ansible.builtin.file:
+    path: "{{ netboot_xyz_data_dir }}/nginx/site-confs"
+    state: directory
+    mode: "0755"
+    recurse: true
+  become: true
+
+- name: Render netboot.xyz assets nginx vhost with managed listen port
+  ansible.builtin.template:
+    src: nginx-assets-default.j2
+    dest: "{{ netboot_xyz_data_dir }}/nginx/site-confs/default"
+    mode: "0755"
+  become: true
+
 - name: Create a netboot.xyz container
   community.docker.docker_container:
     name: "{{ netboot_xyz_docker_container_name }}"
