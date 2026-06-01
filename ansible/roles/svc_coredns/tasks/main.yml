@@ -1,7 +1,18 @@
 ---
 # code: language=ansible
+#
+# Order matters:
+#   1. setup_etcd_pki.yml lays down the CA + server/client material so
+#      both containers can start with their TLS bundle already on disk.
+#   2. setup_etcd.yml starts svc_etcd with mTLS-only client listener.
+#   3. setup_coredns.yml renders the Corefile and (re)creates svc_coredns,
+#      whose etcd plugin reaches svc_etcd on https://{{ etcd_advertise_ip }}:2379.
+
+- name: Include tasks from setup_etcd_pki.yml
+  ansible.builtin.include_tasks: setup_etcd_pki.yml
+
+- name: Include tasks from setup_etcd.yml
+  ansible.builtin.include_tasks: setup_etcd.yml
+
 - name: Include tasks from setup_coredns.yml
   ansible.builtin.include_tasks: setup_coredns.yml
-
-# - name: Include tasks from setup_etcd.yml
-#   ansible.builtin.include_tasks: setup_etcd.yml

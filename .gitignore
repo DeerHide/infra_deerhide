@@ -12,3 +12,6 @@
 
 # Poetry
 poetry.lock
+
+# Ad-hoc artifacts (deploy keys, generated PKI, etc.)
+tmp/

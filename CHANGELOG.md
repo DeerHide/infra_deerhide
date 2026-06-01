@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `svc_coredns` is now the source of truth for the melissa CoreDNS
+  container. The Corefile (previously deployed by
+  `infra_deerhide_private/ansible/roles/svc_coredns_files`) lives at
+  [`ansible/roles/svc_coredns/templates/Corefile.j2`](ansible/roles/svc_coredns/templates/Corefile.j2).
+  `deerhide.run`, `host`, and the catch-all `.` block are kept verbatim;
+  the static `velmios.io { hosts {} }` block is replaced by an `etcd`
+  zone that reads from a sibling `svc_etcd` container.
+- `svc_etcd` (etcd v3.5, mTLS-only) backing the `velmios.io` CoreDNS
+  zone. Driven by [`ansible/roles/svc_coredns/tasks/setup_etcd.yml`](ansible/roles/svc_coredns/tasks/setup_etcd.yml)
+  with `--client-cert-auth` enforced and HTTPS-only client listener on
+  `:2379`. Records are populated by `external-dns` running on the red
+  and green Talos clusters (`argocd/apps/platform/external-dns.yml` in
+  `laelidona/velmios-infrastructure`).
+- [`scripts/gen_etcd_pki.sh`](scripts/gen_etcd_pki.sh) generates the
+  CA + server cert + per-client (CoreDNS, external-dns red, external-dns
+  green) certificates in `tmp/etcd-pki/`. The deerhide-side material is
+  vaulted into `ansible-vars.yml` and applied by
+  [`ansible/roles/svc_coredns/tasks/setup_etcd_pki.yml`](ansible/roles/svc_coredns/tasks/setup_etcd_pki.yml);
+  the external-dns slice is handed off to the velmios SOPS pipeline.
+- [`docs/CORE_DNS_AND_ETCD.md`](docs/CORE_DNS_AND_ETCD.md) documents the
+  full architecture, PKI workflow, and rotation procedure.
+
 ### Fixed
 
 - `svc_netboot_xyz`: manage the assets nginx vhost

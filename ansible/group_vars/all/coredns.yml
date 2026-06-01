@@ -1,10 +1,39 @@
 ---
 # code: language=ansible
 # Path: ansible/group_vars/all/coredns.yml
-# This file contains the variables for the CoreDNS service
+# This file contains the variables for the CoreDNS service and its
+# companion etcd v3 backend that holds the velmios.io zone.
+
+# --- CoreDNS container ---------------------------------------------------
 coredns_data_dir_name: svc_coredns_data
 coredns_data_dir: "{{ docker_volumes_dir }}/{{ coredns_data_dir_name }}"
 coredns_docker_image_name: coredns/coredns
 coredns_docker_image_version: latest
 coredns_docker_volume_name: svc_coredns_data_volume
 coredns_ip: 172.16.20.53
+
+# --- TLS layout (host-side under {{ coredns_data_dir }}/tls/) ------------
+# The svc_coredns container mounts {{ coredns_data_dir }} -> /etc/coredns
+# (read-only). The etcd plugin reads its mTLS bundle from /etc/coredns/tls.
+coredns_tls_dir: "{{ coredns_data_dir }}/tls"
+coredns_etcd_tls_cert_in_container: "/etc/coredns/tls/coredns-client.pem"
+coredns_etcd_tls_key_in_container: "/etc/coredns/tls/coredns-client-key.pem"
+coredns_etcd_tls_ca_in_container: "/etc/coredns/tls/etcd-ca.pem"
+
+# --- velmios.io zone (etcd plugin) ---------------------------------------
+# /skydns is the default prefix for both the CoreDNS etcd plugin and the
+# external-dns "coredns" provider, so writers (external-dns) and readers
+# (CoreDNS) agree without extra configuration.
+coredns_etcd_path: /skydns
+coredns_etcd_endpoint: "https://192.168.60.188:2379"
+
+# --- svc_etcd container --------------------------------------------------
+etcd_data_dir_name: svc_etcd_data
+etcd_data_dir: "{{ docker_volumes_dir }}/{{ etcd_data_dir_name }}"
+etcd_tls_dir_name: svc_etcd_tls
+etcd_tls_dir: "{{ docker_volumes_dir }}/{{ etcd_tls_dir_name }}"
+etcd_docker_image_name: "quay.io/coreos/etcd"
+etcd_docker_image_version: "v3.5.15"
+etcd_advertise_ip: "192.168.60.188"
+etcd_client_port: 2379
+etcd_peer_port: 2380

@@ -1,0 +1,75 @@
+# Deerhide LAN resolver (melissa / CoreDNS container). LAN clients should list this host's
+# DNS listener first (192.168.60.188) so deerhide.run and velmios.io zones resolve.
+# Using only the gateway (192.168.60.1) skips these zones and breaks internal names (Alloy,
+# Velmios tooling). Non-local queries still forward from "." below to the gateway.
+#
+# velmios.io is no longer a static zone: the records are written into the local etcd
+# instance (svc_etcd, mTLS) by external-dns running on the red and green Talos clusters
+# (argocd/apps/platform/external-dns.yml in laelidona/velmios-infrastructure). CoreDNS
+# reads them via the built-in etcd plugin under the default /skydns prefix.
+
+deerhide.run {
+    hosts {
+        192.168.60.188  nut.melissa.deerhide.run
+        192.168.60.188  traefik.melissa.deerhide.run
+        192.168.60.188  static.melissa.deerhide.run
+        192.168.3.220   traefik.bunryl.deerhide.run
+        192.168.3.220   minio.bunryl.deerhide.run
+        192.168.3.220   console-minio.bunryl.deerhide.run
+        192.168.3.220   bunryl.deerhide.run
+        192.168.60.49   traefik.claudia.deerhide.run
+        192.168.60.49   minio.claudia.deerhide.run
+        192.168.60.49   console-minio.claudia.deerhide.run
+        192.168.60.93   traefik.giustina.deerhide.run
+        192.168.60.93   grafana.giustina.deerhide.run
+        192.168.60.93   portainer.giustina.deerhide.run
+        192.168.60.93   dex.clb.deerhide.run
+        192.168.60.58   marion.deerhide.run
+        192.168.60.220  elise.deerhide.run
+        192.168.60.121  sibylle.deerhide.run
+        192.168.60.200  marlene.deerhide.run
+        192.168.60.200  marlene.clb.deerhide.run
+        192.168.60.200  traefik.marlene.deerhide.run
+        192.168.60.200  alloy.marlene.deerhide.run
+        192.168.60.200  netboot.marlene.deerhide.run
+        192.168.60.200  assets-netboot.marlene.deerhide.run
+        fallthrough
+    }
+    forward . 192.168.60.1
+}
+
+velmios.io {
+    etcd {
+        path {{ coredns_etcd_path }}
+        endpoint {{ coredns_etcd_endpoint }}
+        tls {{ coredns_etcd_tls_cert_in_container }} {{ coredns_etcd_tls_key_in_container }} {{ coredns_etcd_tls_ca_in_container }}
+    }
+    cache 30
+    forward . 192.168.60.1
+}
+
+host {
+    hosts {
+        192.168.60.188  melissa.host
+        192.168.60.189  melanie.host
+        192.168.60.49   claudia.host
+        192.168.60.115  helene.host
+        192.168.60.93   giustina.host
+        192.168.60.58   marion.host
+        192.168.60.220  elise.host
+        192.168.60.121  sibylle.host
+        192.168.60.200  marlene.host
+        192.168.60.188  nut.host
+        192.168.3.220   bunryl.host
+        192.168.60.188  static.host
+        fallthrough
+    }
+    forward . 192.168.60.1
+}
+
+. {
+    forward . 192.168.60.1
+    log
+    errors
+    cache
+}

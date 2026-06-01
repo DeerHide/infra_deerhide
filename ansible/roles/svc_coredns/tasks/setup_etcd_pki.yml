@@ -1,0 +1,104 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_coredns/tasks/setup_etcd_pki.yml
+#
+# Lays down the X.509 material consumed by svc_etcd (server cert) and
+# svc_coredns (client cert), under two host directories that the two
+# containers mount read-only:
+#
+#   {{ etcd_tls_dir }}    -> svc_etcd     (mount: /etc/etcd/tls:ro)
+#   {{ coredns_tls_dir }} -> svc_coredns  (mount: /etc/coredns/tls via the data-dir bind)
+#
+# All five values (etcd_ca_pem, etcd_server_pem, etcd_server_key,
+# coredns_etcd_client_pem, coredns_etcd_client_key) come from
+# ansible-vars.yml. Generate them with `scripts/gen_etcd_pki.sh` and vault
+# each in place via `scripts/encrypt_ansible-vault_file.sh <varname>`.
+#
+# The external-dns slice (extdns-{red,green}-client.* + ca.pem) is NOT
+# deployed from here: it is shipped to laelidona/velmios-infrastructure
+# under secrets/external-dns/etcd-client.sops.yaml and reaches red/green
+# via the existing SealedSecrets pipeline.
+
+- name: "Assert all etcd PKI variables are defined"
+  ansible.builtin.assert:
+    that:
+      - etcd_ca_pem            is defined and etcd_ca_pem            | length > 0
+      - etcd_server_pem        is defined and etcd_server_pem        | length > 0
+      - etcd_server_key        is defined and etcd_server_key        | length > 0
+      - coredns_etcd_client_pem is defined and coredns_etcd_client_pem | length > 0
+      - coredns_etcd_client_key is defined and coredns_etcd_client_key | length > 0
+    fail_msg: >-
+      One or more etcd PKI variables are missing from ansible-vars.yml.
+      Run scripts/gen_etcd_pki.sh and vault the outputs (see header).
+
+- name: "Create TLS directory for svc_etcd"
+  ansible.builtin.file:
+    path: "{{ etcd_tls_dir }}"
+    state: directory
+    owner: "deerhide-operator"
+    group: "docker"
+    mode: "0750"
+  become: true
+
+- name: "Create TLS directory for svc_coredns"
+  ansible.builtin.file:
+    path: "{{ coredns_tls_dir }}"
+    state: directory
+    owner: "deerhide-operator"
+    group: "docker"
+    mode: "0750"
+  become: true
+
+- name: "Drop etcd CA into svc_etcd TLS dir"
+  ansible.builtin.copy:
+    content: "{{ etcd_ca_pem }}"
+    dest: "{{ etcd_tls_dir }}/etcd-ca.pem"
+    owner: "deerhide-operator"
+    group: "docker"
+    mode: "0644"
+  become: true
+
+- name: "Drop etcd server cert"
+  ansible.builtin.copy:
+    content: "{{ etcd_server_pem }}"
+    dest: "{{ etcd_tls_dir }}/etcd-server.pem"
+    owner: "deerhide-operator"
+    group: "docker"
+    mode: "0644"
+  become: true
+
+- name: "Drop etcd server key"
+  ansible.builtin.copy:
+    content: "{{ etcd_server_key }}"
+    dest: "{{ etcd_tls_dir }}/etcd-server-key.pem"
+    owner: "deerhide-operator"
+    group: "docker"
+    mode: "0600"
+  become: true
+
+- name: "Drop etcd CA into svc_coredns TLS dir"
+  ansible.builtin.copy:
+    content: "{{ etcd_ca_pem }}"
+    dest: "{{ coredns_tls_dir }}/etcd-ca.pem"
+    owner: "deerhide-operator"
+    group: "docker"
+    mode: "0644"
+  become: true
+
+- name: "Drop CoreDNS etcd-client cert"
+  ansible.builtin.copy:
+    content: "{{ coredns_etcd_client_pem }}"
+    dest: "{{ coredns_tls_dir }}/coredns-client.pem"
+    owner: "deerhide-operator"
+    group: "docker"
+    mode: "0644"
+  become: true
+
+- name: "Drop CoreDNS etcd-client key"
+  ansible.builtin.copy:
+    content: "{{ coredns_etcd_client_key }}"
+    dest: "{{ coredns_tls_dir }}/coredns-client-key.pem"
+    owner: "deerhide-operator"
+    group: "docker"
+    mode: "0600"
+  become: true

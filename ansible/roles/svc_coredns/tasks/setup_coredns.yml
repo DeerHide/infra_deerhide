@@ -20,6 +20,17 @@
     recurse: true
   become: true
 
+- name: Render Corefile from template
+  # The Corefile lives next to the TLS material under {{ coredns_data_dir }}
+  # (mounted at /etc/coredns inside the container). Restart of svc_coredns
+  # is triggered by `recreate: true` on the container task below; the etcd
+  # plugin re-reads its TLS bundle on container restart.
+  ansible.builtin.template:
+    src: Corefile.j2
+    dest: "{{ coredns_data_dir }}/Corefile"
+    mode: "0644"
+  become: true
+
 - name: Create docker_volume for CoreDNS data
   community.docker.docker_volume:
     name: "{{ coredns_docker_volume_name }}"
