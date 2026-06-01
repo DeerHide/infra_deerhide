@@ -1,0 +1,11 @@
+---
+# code: language=ansible
+# Path: ansible/group_vars/all/teamspeak.yml
+# This file contains the variables for the Teamspeak service
+
+# Variables for the Teamspeak Server
+teamspeak_data_dir_name: svc_teamspeak_data
+teamspeak_data_dir: "{{ docker_volumes_dir }}/{{ teamspeak_data_dir_name }}"
+teamspeak_docker_image_name: teamspeaksystems/teamspeak6-server
+teamspeak_docker_image_version: latest
+teamspeak_docker_volume_name: svc_teamspeak_data_volume

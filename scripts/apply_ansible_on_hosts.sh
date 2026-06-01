@@ -25,21 +25,40 @@ then
   exit 1
 fi
 
-# List available playbooks
-declare -a PLAYBOOKS
-PLAYBOOKS+=("ansible/playbook.yml (All hosts)", "ansible/rasp-playbook.yml (Rasp hosts)")
+# List available playbooks (dedupe later)
+declare -a PLAYBOOKS_SRC
+PLAYBOOKS_SRC+=("ansible/playbook.yml (All hosts)" "ansible/rasp-playbook.yml (Rasp hosts)")
 
-# Extract the unique list of hosts
+# Extract the unique list of hosts and append to PLAYBOOKS_SRC
 while IFS= read -r host; do
-  # Remove any trailing whitespace and newlines
   host=$(echo "$host" | tr -d '\n\r' | xargs)
-  if [[ -n "$host" && "$host" != "" && "$host" =~ ^[a-zA-Z] ]]; then
+  if [[ -n "$host" && "$host" =~ ^[a-zA-Z] ]]; then
     pb="ansible/${host}-playbook.yml"
     if [[ -f "$pb" ]]; then
-      PLAYBOOKS+=("$pb ($host only)")
+      PLAYBOOKS_SRC+=("$pb ($host only)")
     fi
   fi
 done < <(awk '/^[^#\[]/ && !/^\[/ && NF>0 {print $1}' ${ANSIBLE_INVENTORY} | sort -u)
+
+# Deduplicate playbooks by path
+declare -A PB_PATH_TO_DESC
+for entry in "${PLAYBOOKS_SRC[@]}"
+do
+  PB_PATH=$(echo "$entry" | awk '{print $1}')
+  if [[ -z "${PB_PATH_TO_DESC[$PB_PATH]+isset}" ]]; then
+    PB_PATH_TO_DESC["$PB_PATH"]="$entry"
+  fi
+done
+
+# Create deduplicated PLAYBOOKS array with the original descriptions
+declare -a PLAYBOOKS
+for pb_path in "${!PB_PATH_TO_DESC[@]}"; do
+  PLAYBOOKS+=("${PB_PATH_TO_DESC[$pb_path]}")
+done
+
+# Ensure menu order is sorted (optional, to match previous script order)
+# Sort by path to increase determinism
+IFS=$'\n' PLAYBOOKS=($(printf '%s\n' "${PLAYBOOKS[@]}" | sort))
 
 # Detect if an argument is passed and use as PB_DESC
 if [[ -n "$1" ]]; then
