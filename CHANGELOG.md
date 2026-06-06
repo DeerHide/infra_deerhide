@@ -33,14 +33,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `svc_coredns`: add `fallthrough` to the `etcd` plugin block of the
-  `velmios.io` zone in
-  [`ansible/roles/svc_coredns/templates/Corefile.j2`](ansible/roles/svc_coredns/templates/Corefile.j2)
-  so record types not published by `external-dns` (MX, TXT/SPF/DMARC,
-  SRV, ...) are no longer answered with NXDOMAIN locally. Unresolved
-  queries now continue down the plugin chain to `forward . 192.168.60.1`
-  and reach the public `velmios.io` zone, fixing MX-based email
-  verification for applications running on the LAN.
+- `svc_coredns`: stop returning empty answers on the LAN for
+  `velmios.io` queries of types that `external-dns` does not publish
+  into etcd (MX, TXT/SPF/DMARC/DKIM, CAA, NAPTR, TLSA), which broke
+  email verification for applications running locally. The
+  [`Corefile.j2`](ansible/roles/svc_coredns/templates/Corefile.j2)
+  template now (1) adds `fallthrough` on the `etcd` plugin so true
+  NXDOMAIN names (e.g. `unknown.velmios.io`) are forwarded upstream
+  instead of being answered authoritatively, and (2) adds a second
+  `velmios.io` server block gated by the `view` plugin that routes the
+  public-only qtypes above straight to `forward . 192.168.60.1`. The
+  NODATA case (apex name has A records in etcd, MX is asked) is
+  otherwise unreachable from CoreDNS' etcd plugin since `fallthrough`
+  there only triggers on NXDOMAIN.
+- `svc_coredns`: publish `53/tcp` in addition to `53/udp` on the
+  Docker container
+  ([`setup_coredns.yml`](ansible/roles/svc_coredns/tasks/setup_coredns.yml)).
+  Responses larger than the EDNS buffer (typical for TXT/SPF/DMARC
+  bundles and busy MX answer sets) set the TC flag and clients retry
+  over TCP; without the TCP port mapped, those retries hit
+  `Connection refused` and the lookup fails.
 - `svc_netboot_xyz`: manage the assets nginx vhost
   (`/config/nginx/site-confs/default`) from Ansible with a template bound
   to `netboot_xyz_assets_port`. The upstream image only renders this file

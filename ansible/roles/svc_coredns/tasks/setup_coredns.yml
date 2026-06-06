@@ -52,6 +52,7 @@
     read_only: true
     ports:
       - "53:53/udp"
+      - "53:53/tcp"
     comparisons:
       networks: strict
     volumes:
