@@ -33,6 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `svc_coredns`: add `fallthrough` to the `etcd` plugin block of the
+  `velmios.io` zone in
+  [`ansible/roles/svc_coredns/templates/Corefile.j2`](ansible/roles/svc_coredns/templates/Corefile.j2)
+  so record types not published by `external-dns` (MX, TXT/SPF/DMARC,
+  SRV, ...) are no longer answered with NXDOMAIN locally. Unresolved
+  queries now continue down the plugin chain to `forward . 192.168.60.1`
+  and reach the public `velmios.io` zone, fixing MX-based email
+  verification for applications running on the LAN.
 - `svc_netboot_xyz`: manage the assets nginx vhost
   (`/config/nginx/site-confs/default`) from Ansible with a template bound
   to `netboot_xyz_assets_port`. The upstream image only renders this file

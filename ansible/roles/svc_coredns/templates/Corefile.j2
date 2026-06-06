@@ -7,6 +7,12 @@
 # instance (svc_etcd, mTLS) by external-dns running on the red and green Talos clusters
 # (argocd/apps/platform/external-dns.yml in laelidona/velmios-infrastructure). CoreDNS
 # reads them via the built-in etcd plugin under the default /skydns prefix.
+#
+# external-dns only publishes A/AAAA/CNAME records for ingresses, so record types it
+# does not manage (MX, TXT/SPF/DMARC, SRV, ...) are missing from etcd. The `fallthrough`
+# directive on the etcd plugin lets those unresolved queries continue down the plugin
+# chain to `forward . 192.168.60.1`, which sends them upstream where the public
+# velmios.io zone resolves them (e.g. MX records for email verification).
 
 deerhide.run {
     hosts {
@@ -43,6 +49,7 @@ velmios.io {
         path {{ coredns_etcd_path }}
         endpoint {{ coredns_etcd_endpoint }}
         tls {{ coredns_etcd_tls_cert_in_container }} {{ coredns_etcd_tls_key_in_container }} {{ coredns_etcd_tls_ca_in_container }}
+        fallthrough
     }
     cache 30
     forward . 192.168.60.1
