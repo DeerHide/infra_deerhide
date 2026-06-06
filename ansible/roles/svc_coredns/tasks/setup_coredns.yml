@@ -51,8 +51,8 @@
     command: --conf /etc/coredns/Corefile
     read_only: true
     ports:
-      - "53:53/udp"
-      - "53:53/tcp"
+      - "{{ coredns_listen_ip }}:53:53/udp"
+      - "{{ coredns_listen_ip }}:53:53/tcp"
     comparisons:
       networks: strict
     volumes:

@@ -12,6 +12,13 @@ coredns_docker_image_version: latest
 coredns_docker_volume_name: svc_coredns_data_volume
 coredns_ip: 172.16.20.53
 
+# Host-side IP the svc_coredns container publishes :53 on. Binding to a specific
+# IP (rather than 0.0.0.0) is required because systemd-resolved already holds
+# 127.0.0.53:53; Linux's TCP stack then refuses an overlapping 0.0.0.0:53 bind
+# (UDP allows the overlap, which is why the old UDP-only mapping worked). The
+# host's LAN-facing IP is also the etcd advertise IP, so we reuse that here.
+coredns_listen_ip: "{{ etcd_advertise_ip }}"
+
 # --- TLS layout (host-side under {{ coredns_data_dir }}/tls/) ------------
 # The svc_coredns container mounts {{ coredns_data_dir }} -> /etc/coredns
 # (read-only). The etcd plugin reads its mTLS bundle from /etc/coredns/tls.

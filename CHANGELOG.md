@@ -52,7 +52,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Responses larger than the EDNS buffer (typical for TXT/SPF/DMARC
   bundles and busy MX answer sets) set the TC flag and clients retry
   over TCP; without the TCP port mapped, those retries hit
-  `Connection refused` and the lookup fails.
+  `Connection refused` and the lookup fails. Both ports are now bound
+  to the host's LAN IP via a new `coredns_listen_ip` variable
+  ([`group_vars/all/coredns.yml`](ansible/group_vars/all/coredns.yml))
+  instead of `0.0.0.0`, because `systemd-resolved` already holds
+  `127.0.0.53:53` on melissa and Linux refuses an overlapping
+  `0.0.0.0:53/tcp` bind (the old UDP-only mapping worked only because
+  the UDP stack tolerates the overlap).
 - `svc_netboot_xyz`: manage the assets nginx vhost
   (`/config/nginx/site-confs/default`) from Ansible with a template bound
   to `netboot_xyz_assets_port`. The upstream image only renders this file
