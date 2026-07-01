@@ -1,0 +1,7 @@
+---
+# code: language=ansible
+
+# Setup Teamspeak 6 Server
+
+- name: Include tasks from setup_teamspeak.yml
+  ansible.builtin.include_tasks: setup_teamspeak.yml
