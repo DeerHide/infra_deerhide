@@ -1,42 +1,71 @@
 ---
 # code: language=ansible
+# Path: ansible/roles/svc_coredns/tasks/setup_etcd.yml
+#
+# etcd v3 (mTLS-only) datastore that backs the velmios.io zone served by
+# svc_coredns. Writers are the external-dns instances on the red and green
+# Talos clusters (argocd/apps/platform/external-dns.yml in
+# laelidona/velmios-infrastructure); reader is the CoreDNS etcd plugin in
+# the sibling container on this host.
+#
+# Hardening:
+#   - --client-cert-auth requires every client to present an X.509
+#     certificate signed by the etcd CA. There is no static-token / RBAC
+#     password fallback.
+#   - --listen-client-urls is HTTPS only. Plaintext :2379 is unreachable.
+#   - --advertise-client-urls is the LAN IP because external-dns on
+#     red/green reaches melissa over the LAN.
+#   - Peer URLs stay loopback because this is a single-node etcd; we never
+#     advertise on the peer port.
 
 - name: "Pull etcd docker image"
   community.docker.docker_image_pull:
-    name: "quay.io/coreos/etcd"
-    tag: "v2.3.8"
+    name: "{{ etcd_docker_image_name }}"
+    tag: "{{ etcd_docker_image_version }}"
     pull: always
     timeout: 10
     tls: true
     tls_hostname: "{{ docker_quay_registry_hostname }}"
   become: true
 
-- name: "Create directory for etcd"
+- name: "Create directory for etcd data"
   ansible.builtin.file:
     name: "{{ etcd_data_dir }}"
     state: directory
-    mode: "777" # FIXME: find solution for UID/GID mismatch between host and container
-    recurse: true
+    mode: "0700"
     owner: "deerhide-operator"
     group: "docker"
   become: true
 
-- name: "Create docker etc container"
+- name: "Create svc_etcd container (etcd v3, mTLS)"
   community.docker.docker_container:
     name: "svc_etcd"
-    image: "quay.io/coreos/etcd:v2.3.8"
+    image: "{{ etcd_docker_image_name }}:{{ etcd_docker_image_version }}"
     state: started
     restart_policy: unless-stopped
+    recreate: true
     ports:
-      - "2379:2379"
-    command: >
-      /usr/local/bin/etcd
-      --name etcd
-      --data-dir /etcd-data
-      --initial-advertise-peer-urls http://svc_etcd:2300
-      --listen-peer-urls http://0.0.0.0:2300
-      --advertise-client-urls http://192.168.60.188:2379
-      --listen-client-urls http://192.168.60.188:2379
-      --initial-cluster svc_etcd=http://svc_etcd:2300
+      - "{{ etcd_client_port }}:2379"
+    env:
+      ETCD_NAME: "etcd"
+      ETCD_DATA_DIR: "/etcd-data"
+      # Client (mTLS, listener + advertised endpoint)
+      ETCD_LISTEN_CLIENT_URLS: "https://0.0.0.0:2379"
+      ETCD_ADVERTISE_CLIENT_URLS: "https://{{ etcd_advertise_ip }}:{{ etcd_client_port }}"
+      ETCD_CERT_FILE: "/etc/etcd/tls/etcd-server.pem"
+      ETCD_KEY_FILE: "/etc/etcd/tls/etcd-server-key.pem"
+      ETCD_TRUSTED_CA_FILE: "/etc/etcd/tls/etcd-ca.pem"
+      ETCD_CLIENT_CERT_AUTH: "true"
+      # Peer (single-node, loopback only)
+      ETCD_LISTEN_PEER_URLS: "http://127.0.0.1:2380"
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: "http://127.0.0.1:2380"
+      ETCD_INITIAL_CLUSTER: "etcd=http://127.0.0.1:2380"
+      ETCD_INITIAL_CLUSTER_STATE: "new"
+      ETCD_INITIAL_CLUSTER_TOKEN: "deerhide-velmios-dns"
     volumes:
       - "{{ etcd_data_dir }}:/etcd-data"
+      - "{{ etcd_tls_dir }}:/etc/etcd/tls:ro"
+    networks_cli_compatible: true
+    labels:
+      traefik.enable: "false"
+  become: true

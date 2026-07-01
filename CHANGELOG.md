@@ -7,8 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `svc_coredns` is now the source of truth for the melissa CoreDNS
+  container. The Corefile (previously deployed by
+  `infra_deerhide_private/ansible/roles/svc_coredns_files`) lives at
+  [`ansible/roles/svc_coredns/templates/Corefile.j2`](ansible/roles/svc_coredns/templates/Corefile.j2).
+  `deerhide.run`, `host`, and the catch-all `.` block are kept verbatim;
+  the static `velmios.io { hosts {} }` block is replaced by an `etcd`
+  zone that reads from a sibling `svc_etcd` container.
+- `svc_etcd` (etcd v3.5, mTLS-only) backing the `velmios.io` CoreDNS
+  zone. Driven by [`ansible/roles/svc_coredns/tasks/setup_etcd.yml`](ansible/roles/svc_coredns/tasks/setup_etcd.yml)
+  with `--client-cert-auth` enforced and HTTPS-only client listener on
+  `:2379`. Records are populated by `external-dns` running on the red
+  and green Talos clusters (`argocd/apps/platform/external-dns.yml` in
+  `laelidona/velmios-infrastructure`).
+- [`scripts/gen_etcd_pki.sh`](scripts/gen_etcd_pki.sh) generates the
+  CA + server cert + per-client (CoreDNS, external-dns red, external-dns
+  green) certificates in `tmp/etcd-pki/`. The deerhide-side material is
+  vaulted into `ansible-vars.yml` and applied by
+  [`ansible/roles/svc_coredns/tasks/setup_etcd_pki.yml`](ansible/roles/svc_coredns/tasks/setup_etcd_pki.yml);
+  the external-dns slice is handed off to the velmios SOPS pipeline.
+- [`docs/CORE_DNS_AND_ETCD.md`](docs/CORE_DNS_AND_ETCD.md) documents the
+  full architecture, PKI workflow, and rotation procedure.
+
 ### Fixed
 
+- `svc_coredns`: stop returning empty answers on the LAN for
+  `velmios.io` queries of types that `external-dns` does not publish
+  into etcd (MX, TXT/SPF/DMARC/DKIM, CAA, NAPTR, TLSA), which broke
+  email verification for applications running locally. The
+  [`Corefile.j2`](ansible/roles/svc_coredns/templates/Corefile.j2)
+  template now (1) adds `fallthrough` on the `etcd` plugin so true
+  NXDOMAIN names (e.g. `unknown.velmios.io`) are forwarded upstream
+  instead of being answered authoritatively, and (2) adds a second
+  `velmios.io` server block gated by the `view` plugin that routes the
+  public-only qtypes above straight to `forward . 192.168.60.1`. The
+  NODATA case (apex name has A records in etcd, MX is asked) is
+  otherwise unreachable from CoreDNS' etcd plugin since `fallthrough`
+  there only triggers on NXDOMAIN.
+- `svc_coredns`: publish `53/tcp` in addition to `53/udp` on the
+  Docker container
+  ([`setup_coredns.yml`](ansible/roles/svc_coredns/tasks/setup_coredns.yml)).
+  Responses larger than the EDNS buffer (typical for TXT/SPF/DMARC
+  bundles and busy MX answer sets) set the TC flag and clients retry
+  over TCP; without the TCP port mapped, those retries hit
+  `Connection refused` and the lookup fails. Both ports are now bound
+  to the host's LAN IP via a new `coredns_listen_ip` variable
+  ([`group_vars/all/coredns.yml`](ansible/group_vars/all/coredns.yml))
+  instead of `0.0.0.0`, because `systemd-resolved` already holds
+  `127.0.0.53:53` on melissa and Linux refuses an overlapping
+  `0.0.0.0:53/tcp` bind (the old UDP-only mapping worked only because
+  the UDP stack tolerates the overlap).
 - `svc_netboot_xyz`: manage the assets nginx vhost
   (`/config/nginx/site-confs/default`) from Ansible with a template bound
   to `netboot_xyz_assets_port`. The upstream image only renders this file
