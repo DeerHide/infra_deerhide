@@ -46,4 +46,10 @@
       - "9987:9987/udp"
       - "30033:30033/tcp"
     recreate: true
+    healthcheck:
+      test: ["CMD-SHELL", "grep -qa tsserver /proc/*/cmdline"]
+      interval: "30s"
+      timeout: "5s"
+      retries: 3
+      start_period: "10s"
   become: true
