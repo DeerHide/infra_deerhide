@@ -1,0 +1,152 @@
+---
+# code: language=ansible
+# Path: ansible/roles/svc_seaweedfs/tasks/main.yml
+# SeaweedFS S3 (8333) and admin (12535) beside MinIO. No host ports.
+# Traefik already sits on the default bridge, which has no container DNS,
+# so the admin process is pointed at the server container's bridge IP.
+
+- name: Assert SeaweedFS credentials are set
+  ansible.builtin.assert:
+    that:
+      - deerhide_seaweedfs_s3_access_key | default('') | length > 0
+      - deerhide_seaweedfs_s3_secret_key | default('') | length > 0
+      - deerhide_seaweedfs_admin_password | default('') | length > 0
+      - deerhide_seaweedfs_pulumi_stg_access_key | default('') | length > 0
+      - deerhide_seaweedfs_pulumi_stg_secret_key | default('') | length > 0
+      - deerhide_seaweedfs_pulumi_prd_access_key | default('') | length > 0
+      - deerhide_seaweedfs_pulumi_prd_secret_key | default('') | length > 0
+    fail_msg: >
+      Set deerhide_seaweedfs_s3_access_key, deerhide_seaweedfs_s3_secret_key,
+      deerhide_seaweedfs_admin_password, and the bunryl-pulumi-stg/prd
+      access/secret keys in ansible-vars.yml
+      (scripts/encrypt_ansible-vault_file.sh).
+
+- name: Pull SeaweedFS image
+  community.docker.docker_image_pull:
+    name: "{{ seaweedfs_docker_image_name }}"
+    tag: "{{ seaweedfs_docker_image_version }}"
+    pull: always
+    timeout: 10
+    tls: true
+    tls_hostname: "{{ docker_registry_hostname }}"
+  become: true
+
+- name: Create SeaweedFS data directory
+  ansible.builtin.file:
+    name: "{{ seaweedfs_data_dir }}"
+    state: directory
+    mode: "700"
+  become: true
+
+- name: Create SeaweedFS admin data directory
+  ansible.builtin.file:
+    name: "{{ seaweedfs_admin_data_dir }}"
+    state: directory
+    mode: "700"
+  become: true
+
+- name: Create SeaweedFS config directory
+  ansible.builtin.file:
+    name: "{{ seaweedfs_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  become: true
+
+- name: Render SeaweedFS S3 identity config
+  ansible.builtin.template:
+    src: s3.json.j2
+    dest: "{{ seaweedfs_config_dir }}/s3.json"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  no_log: true
+
+- name: Create SeaweedFS server container
+  community.docker.docker_container:
+    name: svc_seaweedfs
+    image: "{{ seaweedfs_docker_image_name }}:{{ seaweedfs_docker_image_version }}"
+    state: started
+    restart_policy: always
+    recreate: true
+    memory: "{{ seaweedfs_memory_limit }}"
+    command:
+      - server
+      - -s3
+      - -s3.port={{ seaweedfs_s3_port }}
+      - -s3.config=/etc/seaweedfs/s3.json
+      - -s3.externalUrl=https://{{ seaweedfs_s3_host }}
+      - -s3.port.iceberg=0
+      - -s3.port.lance=0
+      - -volume.index=leveldb
+      - -volume.max={{ seaweedfs_volume_max }}
+      - -ip.bind=0.0.0.0
+    volumes:
+      - "{{ seaweedfs_data_dir }}:/data"
+      - "{{ seaweedfs_config_dir }}/s3.json:/etc/seaweedfs/s3.json:ro"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.svc_seaweedfs.rule: "Host(`{{ seaweedfs_host }}`)"
+      traefik.http.routers.svc_seaweedfs.service: "svc_seaweedfs_service"
+      traefik.http.services.svc_seaweedfs_service.loadbalancer.server.port: "{{ seaweedfs_s3_port | string }}"
+      traefik.http.routers.svc_seaweedfs.tls: "true"
+      traefik.http.routers.svc_seaweedfs.tls.certresolver: "cloudflare"
+      traefik.http.routers.svc_seaweedfs_s3.rule: "Host(`{{ seaweedfs_s3_host }}`)"
+      traefik.http.routers.svc_seaweedfs_s3.service: "svc_seaweedfs_service"
+      traefik.http.routers.svc_seaweedfs_s3.tls: "true"
+      traefik.http.routers.svc_seaweedfs_s3.tls.certresolver: "cloudflare"
+    log_driver: json-file
+  become: true
+  register: svc_seaweedfs_server
+
+- name: Record SeaweedFS master address
+  ansible.builtin.set_fact:
+    svc_seaweedfs_admin_master: "{{ svc_seaweedfs_server.container.NetworkSettings.IPAddress }}:9333"
+  when: >-
+    svc_seaweedfs_server.container is defined
+    and (svc_seaweedfs_server.container.NetworkSettings.IPAddress | default('')) | length > 0
+
+- name: Placeholder SeaweedFS master address in check mode
+  ansible.builtin.set_fact:
+    svc_seaweedfs_admin_master: "127.0.0.1:9333"
+  when:
+    - ansible_check_mode
+    - svc_seaweedfs_admin_master is not defined
+
+- name: Fail if SeaweedFS server has no bridge IP
+  ansible.builtin.fail:
+    msg: svc_seaweedfs has no Docker bridge IP, so the admin container cannot reach the master.
+  when:
+    - not ansible_check_mode
+    - svc_seaweedfs_admin_master is not defined
+
+- name: Create SeaweedFS admin container
+  community.docker.docker_container:
+    name: svc_seaweedfs_admin
+    image: "{{ seaweedfs_docker_image_name }}:{{ seaweedfs_docker_image_version }}"
+    state: started
+    restart_policy: always
+    recreate: true
+    memory: "{{ seaweedfs_admin_memory_limit }}"
+    command:
+      - admin
+      - -master={{ svc_seaweedfs_admin_master }}
+      - -dataDir=/data
+      - -port={{ seaweedfs_admin_port }}
+      - -ip=0.0.0.0
+      - -adminUser={{ seaweedfs_admin_user }}
+      - -adminPassword={{ deerhide_seaweedfs_admin_password }}
+    volumes:
+      - "{{ seaweedfs_admin_data_dir }}:/data"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.svc_seaweedfs_admin.rule: "Host(`{{ seaweedfs_admin_host }}`)"
+      traefik.http.routers.svc_seaweedfs_admin.service: "svc_seaweedfs_admin_service"
+      traefik.http.services.svc_seaweedfs_admin_service.loadbalancer.server.port: "{{ seaweedfs_admin_port | string }}"
+      traefik.http.routers.svc_seaweedfs_admin.tls: "true"
+      traefik.http.routers.svc_seaweedfs_admin.tls.certresolver: "cloudflare"
+    log_driver: json-file
+  become: true
+  no_log: true

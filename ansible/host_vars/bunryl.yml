@@ -11,6 +11,9 @@ ansible_become_pass: "{{ bunryl_deerhide_operator_password }}"
 traefik_host: "traefik.bunryl.deerhide.run"
 minio_host: "minio.bunryl.deerhide.run"
 minio_console_host: "console-minio.bunryl.deerhide.run"
+seaweedfs_host: "seaweedfs.bunryl.deerhide.run"
+seaweedfs_s3_host: "s3.bunryl.deerhide.run"
+seaweedfs_admin_host: "console-seaweedfs.bunryl.deerhide.run"
 
 # It's a specific file for bunryl(NAS) for the moment
 # Traefik file provider configuration

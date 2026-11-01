@@ -1,0 +1,26 @@
+---
+# code: language=ansible
+# Path: ansible/group_vars/all/seaweedfs.yml
+# SeaweedFS on bunryl. Image tag is pinned (not latest).
+
+seaweedfs_docker_image_name: chrislusf/seaweedfs
+seaweedfs_docker_image_version: "4.51"
+
+seaweedfs_data_dir_name: svc_seaweedfs_data
+seaweedfs_data_dir: "{{ docker_volumes_dir }}/{{ seaweedfs_data_dir_name }}"
+seaweedfs_admin_data_dir_name: svc_seaweedfs_admin_data
+seaweedfs_admin_data_dir: "{{ docker_volumes_dir }}/{{ seaweedfs_admin_data_dir_name }}"
+seaweedfs_config_dir_name: svc_seaweedfs_config
+seaweedfs_config_dir: "{{ docker_volumes_dir }}/{{ seaweedfs_config_dir_name }}"
+
+seaweedfs_s3_port: 8333
+seaweedfs_admin_port: 12535
+seaweedfs_admin_user: admin
+seaweedfs_s3_identity_name: admin
+
+# ponytail: 128 x 1GiB volumes. The image entrypoint pins
+# master.volumeSizeLimitMB=1024 when the command starts with `server`.
+# Raise seaweedfs_volume_max if a staging copy does not fit.
+seaweedfs_volume_max: "128"
+seaweedfs_memory_limit: "1G"
+seaweedfs_admin_memory_limit: "256M"
