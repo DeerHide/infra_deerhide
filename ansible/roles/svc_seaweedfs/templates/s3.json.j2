@@ -1,0 +1,52 @@
+{
+  "identities": [
+    {
+      "name": "{{ seaweedfs_s3_identity_name }}",
+      "credentials": [
+        {
+          "accessKey": "{{ deerhide_seaweedfs_s3_access_key }}",
+          "secretKey": "{{ deerhide_seaweedfs_s3_secret_key }}"
+        }
+      ],
+      "actions": [
+        "Admin",
+        "Read",
+        "Write",
+        "List",
+        "Tagging"
+      ]
+    },
+    {
+      "name": "bunryl-pulumi-stg",
+      "credentials": [
+        {
+          "accessKey": "{{ deerhide_seaweedfs_pulumi_stg_access_key }}",
+          "secretKey": "{{ deerhide_seaweedfs_pulumi_stg_secret_key }}"
+        }
+      ],
+      "actions": [
+        "Admin",
+        "Read",
+        "Write",
+        "List",
+        "Tagging"
+      ]
+    },
+    {
+      "name": "bunryl-pulumi-prd",
+      "credentials": [
+        {
+          "accessKey": "{{ deerhide_seaweedfs_pulumi_prd_access_key }}",
+          "secretKey": "{{ deerhide_seaweedfs_pulumi_prd_secret_key }}"
+        }
+      ],
+      "actions": [
+        "Admin",
+        "Read",
+        "Write",
+        "List",
+        "Tagging"
+      ]
+    }
+  ]
+}

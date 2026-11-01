@@ -5,5 +5,6 @@
   hosts:
     - claudia
   roles:
-    - role: cli_minio
+    # cli_minio: dl.min.io no longer serves the community mc binary (HTTP 410).
+    # - role: cli_minio
     - role: svc_minio

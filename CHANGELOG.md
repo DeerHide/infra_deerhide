@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Bunryl SeaweedFS (`svc_seaweedfs`) beside MinIO: S3 at
+  `seaweedfs.bunryl.deerhide.run` / `s3.bunryl.deerhide.run`, admin at
+  `console-seaweedfs.bunryl.deerhide.run`, CoreDNS hosts, vaulted admin +
+  `bunryl-pulumi-stg` / `bunryl-pulumi-prd` S3 identities. Comment out
+  `cli_minio` on bunryl/claudia (community `mc` download returns HTTP 410).
 - `svc_coredns` is now the source of truth for the melissa CoreDNS
   container. The Corefile (previously deployed by
   `infra_deerhide_private/ansible/roles/svc_coredns_files`) lives at
