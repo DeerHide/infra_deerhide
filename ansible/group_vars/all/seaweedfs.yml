@@ -18,9 +18,11 @@ seaweedfs_admin_port: 12535
 seaweedfs_admin_user: admin
 seaweedfs_s3_identity_name: admin
 
-# ponytail: 128 x 1GiB volumes. The image entrypoint pins
+# ponytail: volume size stays 1GiB. The image entrypoint pins
 # master.volumeSizeLimitMB=1024 when the command starts with `server`.
-# Raise seaweedfs_volume_max if a staging copy does not fit.
-seaweedfs_volume_max: "128"
-seaweedfs_memory_limit: "1G"
+# 768 covers the green+red staging copy (~293 GiB) plus the 7 volumes
+# SeaweedFS grabs for each new collection. Disk budget is 768 GiB.
+# Ceiling: a collection reports "no free volumes left". Raise the max.
+seaweedfs_volume_max: "768"
+seaweedfs_memory_limit: "2G"
 seaweedfs_admin_memory_limit: "256M"

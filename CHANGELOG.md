@@ -84,6 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Bunryl SeaweedFS: raise `seaweedfs_volume_max` from 128 to 768 (1 GiB volumes, 768 GiB disk budget) and the server memory limit from 1G to 2G so the green+red staging copy fits.
 - `svc_netboot_xyz`: move the assets nginx off port `80` to `8081`
   (`netboot_xyz_assets_port`) to avoid colliding with Traefik now that
   the container shares the host network namespace.
